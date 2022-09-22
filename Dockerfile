@@ -26,9 +26,6 @@ COPY install-ruby.sh ./
 RUN chmod +x install-ruby.sh
 RUN ./install-ruby.sh
 
-
-
-
 # Set environment variables.
 EXPOSE 5000
 
@@ -42,9 +39,12 @@ COPY ${APP_NAME}/ ./${APP_NAME}/
 
 ENV PATH="/my/ruby/dir/bin:${PATH}"
 COPY install-app.sh ./
-RUN chmod +x  install-app.sh
+RUN chmod +x install-app.sh
 RUN ./install-app.sh
+
+COPY start-app.sh ./
+RUN chmod +x start-app.sh
 
 
 # Define default command.
-CMD ["bash"]
+CMD ["./start-app.sh"]

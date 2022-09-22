@@ -1,4 +1,3 @@
-
 #!/bin/bash
 APP_NAME="infra-coop-takehome"
 HOME="/root"

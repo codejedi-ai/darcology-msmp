@@ -3,7 +3,7 @@
 Run to build the docker image
 `docker build -t infra-coop-takehome . `
 Then RUN
-`docker run -p 80:5000 -d -e RAILS_ENV="test" infra-coop-takehome:latest`
+`docker run -p 80:5000 -d -e RAILS_ENV="test" infra-coop-takehome`
 
 Run
 ` docker run -p 80:5000 -d -e RAILS_ENV="test" codejediondockerhub/infra-coop-takehome:latest`

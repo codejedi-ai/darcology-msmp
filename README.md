@@ -6,12 +6,23 @@ Run to build the docker image
 
 
 Run
-`docker run -p 80:5000 -e RAILS_ENV="<env-name>" infra-coop-takehome`
-to run the docker locally, as of right now it only supports ARMv8 devices
+` docker run -p 80:5000 -d -e RAILS_ENV="test" codejediondockerhub/infra-coop-takehome:latest`
+to run the docker locally, as of right now it only supports arm64/v8 devices
 
 RUN
 'docker tag infra-coop-takehome codejediondockerhub/infra-coop-takehome' to add the tag
 
 
+1. What is the URL of the hosted application?
+35.174.192.126
 
-Type `http://0.0.0.0:80` in the browser to view
+
+2. Briefly describe the technologies/platforms used (besides Docker and RoR). Describe where in the git repo these technologies/platforms are configured. If there are technologies/platforms configured manually in a web GUI or similar, include screenshots of all of the configuration.
+
+I have used tar zip to install ruby-2.7.2 as `rbenv` does not have 2.7.2. Thus I need to manually install MRI Ruby v2.7.2 using a tar file.
+
+I also used shell script to run the app installation commands from the Dockerfile
+
+I have used the ubuntu docker container as my base as I first ran the applicaion locally on an ubuntu machine. Then I would repeat the similar commands on the docker container. I used the aptitude library to install the variouse dependencies RoR need to run successfully.
+
+Used Dockerhub to manage my docker images and version control. Through dockerhub I can deploy my image on an AWS EC2 instance. As of right now the image only supports linux/arm64/v8 platform

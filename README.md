@@ -5,10 +5,6 @@ Run to build the docker image
 Then RUN
 `docker run -p 80:5000 -d -e RAILS_ENV="test" infra-coop-takehome`
 
-RUN
-`docker tag infra-coop-takehome codejediondockerhub/infra-coop-takehome' to add the tag
-
-
 1. What is the URL of the hosted application?
 http://35.174.192.126/
 

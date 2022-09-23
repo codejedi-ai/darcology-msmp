@@ -5,10 +5,6 @@ Run to build the docker image
 Then RUN
 `docker run -p 80:5000 -d -e RAILS_ENV="test" infra-coop-takehome`
 
-Run
-` docker run -p 80:5000 -d -e RAILS_ENV="test" codejediondockerhub/infra-coop-takehome:latest`
-to run the docker locally, as of right now it only supports arm64/v8 devices
-
 RUN
 'docker tag infra-coop-takehome codejediondockerhub/infra-coop-takehome' to add the tag
 
@@ -18,7 +14,7 @@ http://35.174.192.126/
 
 2. Briefly describe the technologies/platforms used (besides Docker and RoR). Describe where in the git repo these technologies/platforms are configured. If there are technologies/platforms configured manually in a web GUI or similar, include screenshots of all of the configuration.
 
-
+I have used tar zip to install ruby-2.7.2 as `rbenv` does not have 2.7.2. Thus I need to install MRI Ruby v2.7.2 using a tar file.
 
 I also used shell script to install ruby and run the app installation commands from the Dockerfile
 

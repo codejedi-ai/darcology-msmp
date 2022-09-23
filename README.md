@@ -12,7 +12,7 @@ http://35.174.192.126/
 
 I have used tar zip to install ruby-2.7.2 as `rbenv` does not have 2.7.2. Thus I need to install MRI Ruby v2.7.2 using a tar file.
 
-I also used shell script to install ruby and run the app installation commands from the Dockerfile
+I used shell script to install ruby and run the app installation commands from the Dockerfile
 
 I have used the ubuntu docker container as my base as I first ran the applicaion locally on an ubuntu machine. Then I would repeat the similar commands on the docker container. I used the aptitude library to install the variouse dependencies RoR need to run successfully.
 

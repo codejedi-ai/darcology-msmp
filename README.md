@@ -17,4 +17,4 @@ I have used the ubuntu docker container as my base as I first ran the applicaion
 Used Dockerhub to manage my docker images and version control. Through dockerhub I can deploy my image on an AWS EC2 instance. As of right now the image only supports linux/arm64/v8 platform
 
 The pull through Dockerhub
-`docker run -p 80:5000 -d -e RAILS_ENV="test" codejediondockerhub/infra-coop-takehome:latest`
+`docker run -p 80:5000 -d -e RAILS_ENV="production" codejediondockerhub/infra-coop-takehome:latest`

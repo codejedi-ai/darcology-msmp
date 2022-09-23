@@ -1,5 +1,8 @@
 # snaptravel-intern-takehome-project
 
+After cloning
+https://gitlab.com/snaptravel/infra-coop-takehome
+
 
 Run to build the docker image
 `docker build -t infra-coop-takehome . `

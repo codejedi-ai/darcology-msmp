@@ -8,6 +8,11 @@
 FROM ubuntu:18.04
 ARG APP_NAME=infra-coop-takehome
 ARG RUBY_VERSION=ruby-2.7.2
+ARG ENV=development
+ENV RAILS_ENV=${ENV}
+ENV HOME /root
+WORKDIR /root
+
 # Install.
 RUN \
   sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list &&\
@@ -18,9 +23,6 @@ RUN \
   apt-get install -y byobu curl git htop man unzip vim wget openssl libffi-dev &&\
   rm -rf /var/lib/apt/lists/*
 
-#RUN \
-#  wget https://cache.ruby-lang.org/pub/ruby/2.7/ruby-2.7.2.tar.bz2 &&\
-#  tar -xf ruby-2.7.2.tar.bz2
 
 COPY install-ruby.sh ./
 RUN chmod +x install-ruby.sh
@@ -29,15 +31,14 @@ RUN ./install-ruby.sh
 # Set environment variables.
 EXPOSE 5000
 
-
-ENV HOME /root
 # Define working directory.
-WORKDIR /root
+
 
 COPY ${APP_NAME}/ ./${APP_NAME}/
 
-
 ENV PATH="/my/ruby/dir/bin:${PATH}"
+
+
 COPY install-app.sh ./
 RUN chmod +x install-app.sh
 RUN ./install-app.sh

@@ -3,7 +3,8 @@
 
 Run to build the docker image
 `docker build -t infra-coop-takehome . `
-
+Then RUN
+`docker run -p 80:5000 -d -e RAILS_ENV="test" infra-coop-takehome:latest`
 
 Run
 ` docker run -p 80:5000 -d -e RAILS_ENV="test" codejediondockerhub/infra-coop-takehome:latest`
@@ -14,8 +15,7 @@ RUN
 
 
 1. What is the URL of the hosted application?
-35.174.192.126
-
+http://35.174.192.126/
 
 2. Briefly describe the technologies/platforms used (besides Docker and RoR). Describe where in the git repo these technologies/platforms are configured. If there are technologies/platforms configured manually in a web GUI or similar, include screenshots of all of the configuration.
 

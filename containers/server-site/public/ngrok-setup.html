@@ -231,19 +231,9 @@
     <script>
         // Update terminal link based on server address
         function updateTerminalLink() {
-            const saved = localStorage.getItem('serverAddress');
-            if (saved) {
-                const parts = saved.split(':');
-                const hostname = parts[0];
-                const terminalLinkBox = document.getElementById('terminal-link-box');
-                if (terminalLinkBox) {
-                    terminalLinkBox.href = `http://${hostname}:7681`;
-                }
-            } else {
-                const terminalLinkBox = document.getElementById('terminal-link-box');
-                if (terminalLinkBox) {
-                    terminalLinkBox.href = 'http://localhost:7681';
-                }
+            const terminalLinkBox = document.getElementById('terminal-link-box');
+            if (terminalLinkBox) {
+                terminalLinkBox.href = `${window.location.origin}/server-terminal`;
             }
         }
         

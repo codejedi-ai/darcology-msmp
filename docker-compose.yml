@@ -6,10 +6,13 @@ services:
     container_name: minecraft-server
     restart: unless-stopped
 
+    networks:
+      - minecraft-network
+
     ports:
       - "25565:25565"  # Minecraft server port
       - "24454:24454"  # Voice chat mod port
-      - "7681:7681"    # ttyd web terminal on port 7681
+      # ttyd terminal (port 7681) is proxied through nginx at /server-terminal
 
     volumes:
       # Mount world folder from host
@@ -79,6 +82,9 @@ services:
     container_name: minecraft-server-site
     restart: unless-stopped
 
+    networks:
+      - minecraft-network
+
     ports:
       - "80:80"        # Static site on port 80
 
@@ -100,3 +106,13 @@ services:
 volumes:
   minecraft-libraries:
     driver: local
+
+networks:
+  minecraft-network:
+    driver: bridge
+    internal: false  # Allows outbound connections for authentication/updates
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
+          gateway: 172.20.0.1

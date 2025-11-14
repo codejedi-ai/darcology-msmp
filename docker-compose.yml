@@ -7,7 +7,8 @@ services:
     restart: unless-stopped
 
     networks:
-      - minecraft-network
+      minecraft-network:
+        ipv4_address: 172.25.0.10
 
     ports:
       - "25565:25565"  # Minecraft server port
@@ -28,6 +29,10 @@ services:
       - ./data:/data
 
     environment:
+      # Server site address for internal communication
+      - SERVER_SITE_HOST=server-site
+      - SERVER_SITE_IP=172.25.0.20
+
       # Memory settings (adjust both to allocate RAM to Minecraft server)
       # Important: Set MAX_RAM and MIN_RAM to the same value for best performance
       # Container memory limit below should be ~1.5-2GB more than these values
@@ -83,7 +88,14 @@ services:
     restart: unless-stopped
 
     networks:
-      - minecraft-network
+      minecraft-network:
+        ipv4_address: 172.25.0.20
+
+    environment:
+      # Minecraft server address for internal communication
+      - MINECRAFT_SERVER_HOST=minecraft-server
+      - MINECRAFT_SERVER_IP=172.25.0.10
+      - MINECRAFT_SERVER_TERMINAL_PORT=7681
 
     ports:
       - "80:80"        # Static site on port 80
@@ -114,5 +126,5 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 172.20.0.0/16
-          gateway: 172.20.0.1
+        - subnet: 172.25.0.0/16
+          gateway: 172.25.0.1

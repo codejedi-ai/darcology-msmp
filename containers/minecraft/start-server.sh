@@ -82,12 +82,8 @@ if [ -f "/minecraft/server.properties" ]; then
     update_server_properties
 fi
 
-# Check if server jar exists, if not, install Forge
-if [ ! -f "forge-1.20.1-47.4.0-server.jar" ] && [ ! -f "run.sh" ]; then
-    echo "Installing Forge for the first time..."
-    java -jar forge-1.20.1-47.4.0-installer.jar --installServer
-    echo "Forge installation complete!"
-fi
+# Forge is already installed at build time, no need to install at runtime
+echo "Forge installation already completed during Docker build"
 
 # Zip the mods folder at startup (save to shared data volume)
 echo "Creating mods.zip archive..."

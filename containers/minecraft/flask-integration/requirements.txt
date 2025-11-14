@@ -1,0 +1,17 @@
+# Python dependencies for Flask Integration
+# Install with: pip install -r requirements.txt
+
+# RCON client library
+mcrcon>=0.0.1
+
+# Flask and related packages (for future Flask server)
+flask>=3.0.0
+flask-cors>=4.0.0
+requests>=2.31.0
+
+# Optional: For async operations
+# aiohttp>=3.9.0
+
+# Optional: For configuration management
+# python-dotenv>=1.0.0
+

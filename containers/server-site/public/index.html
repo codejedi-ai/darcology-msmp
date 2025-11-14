@@ -254,10 +254,10 @@
         // Load saved server address from localStorage
         function loadServerAddress() {
             const saved = localStorage.getItem('serverAddress');
-            if (saved) {
-                document.getElementById('server-address').textContent = saved;
-                updateTerminalLink(saved);
-            }
+            // Use saved address, or default to window.location.hostname
+            const address = saved || `${window.location.hostname}:25565`;
+            document.getElementById('server-address').textContent = address;
+            updateTerminalLink(address);
         }
         
         // Update server address
@@ -274,16 +274,15 @@
         
         // Update terminal link based on server address
         function updateTerminalLink(serverAddress) {
-            const parts = serverAddress.split(':');
-            const hostname = parts[0];
             const terminalLink = document.getElementById('terminal-link');
             const terminalLinkBox = document.getElementById('terminal-link-box');
+            const terminalUrl = `${window.location.origin}/server-terminal`;
             if (terminalLink) {
-                terminalLink.textContent = `http://${hostname}:7681`;
-                terminalLink.href = `http://${hostname}:7681`;
+                terminalLink.textContent = terminalUrl;
+                terminalLink.href = terminalUrl;
             }
             if (terminalLinkBox) {
-                terminalLinkBox.href = `http://${hostname}:7681`;
+                terminalLinkBox.href = terminalUrl;
             }
         }
         

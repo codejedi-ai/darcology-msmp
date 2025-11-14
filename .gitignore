@@ -1,2 +1,44 @@
+# Minecraft server files
+world/
+logs/
+crash-reports/
+data/
+!data/.gitkeep
+
+# Track mods.zip but ignore extracted mod JARs
+containers/minecraft/mods/*.jar
+!containers/minecraft/mods.zip
+
+# Ruby/Rails
+containers/server-site/vendor/
+containers/server-site/.bundle/
+containers/server-site/tmp/
+containers/server-site/log/
+*.log
+
+# Node.js
 node_modules/
-.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

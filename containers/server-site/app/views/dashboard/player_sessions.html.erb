@@ -1,0 +1,81 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>👥 Player Sessions</h1>
+    <p class="page-subtitle">Real-time player tracking and session information</p>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-header">
+      <h2>Active Players</h2>
+      <div class="stat-icon">👥</div>
+    </div>
+    <div class="stat-content">
+      <div class="player-count">
+        <div class="count-display">
+          <span class="count-number" id="online-count"><%= @online_count %></span>
+          <span class="count-label">Online</span>
+        </div>
+        <div class="count-total">
+          <span id="total-count"><%= @players.count %></span> total players
+        </div>
+      </div>
+      <div class="players-list" id="players-list">
+        <% @players.first(50).each do |player| %>
+          <div class="player-item <%= 'online' if player[:is_online] %>">
+            <div class="player-name"><%= player[:name] %></div>
+            <div class="player-status">
+              <% if player[:is_online] %>
+                <span class="status-badge online-badge">● Online</span>
+              <% else %>
+                <span class="status-badge offline-badge">○ Offline</span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+        <% if @players.count == 0 %>
+          <div class="no-players">No players have joined yet</div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  function updatePlayerSessions() {
+    fetch('/stats')
+      .then(response => response.json())
+      .then(data => {
+        if (data.players) {
+          document.getElementById('online-count').textContent = data.players.online_count;
+          document.getElementById('total-count').textContent = data.players.total_count;
+          
+          const playersList = document.getElementById('players-list');
+          if (data.players.list && data.players.list.length > 0) {
+            playersList.innerHTML = data.players.list.slice(0, 50).map(player => {
+              const isOnline = player.is_online;
+              return `
+                <div class="player-item ${isOnline ? 'online' : ''}">
+                  <div class="player-name">${player.name}</div>
+                  <div class="player-status">
+                    <span class="status-badge ${isOnline ? 'online-badge' : 'offline-badge'}">
+                      ${isOnline ? '● Online' : '○ Offline'}
+                    </span>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          } else {
+            playersList.innerHTML = '<div class="no-players">No players have joined yet</div>';
+          }
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching player sessions:', error);
+      });
+  }
+
+  setInterval(updatePlayerSessions, 1000);
+  setTimeout(updatePlayerSessions, 500);
+</script>
+

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Troubleshooting - Minecraft Server Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 10px 0;
+        }
+
+        .nav-item, .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .sidebar-link:hover {
+            background: #f8f9fa;
+            border-left-color: #667eea;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-left-color: #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-right: 12px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-text {
+            font-size: 14px;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid #e0e0e0;
+            padding: 10px 0;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        section {
+            margin-bottom: 40px;
+        }
+        
+        section h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        section h3 {
+            color: #764ba2;
+            font-size: 1.4em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .info-box strong {
+            color: #667eea;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+    <script>
+        // Update terminal link based on server address
+        function updateTerminalLink() {
+            const saved = localStorage.getItem('serverAddress');
+            if (saved) {
+                const parts = saved.split(':');
+                const hostname = parts[0];
+                const terminalLinkBox = document.getElementById('terminal-link-box');
+                if (terminalLinkBox) {
+                    terminalLinkBox.href = `http://${hostname}:7681`;
+                }
+            } else {
+                const terminalLinkBox = document.getElementById('terminal-link-box');
+                if (terminalLinkBox) {
+                    terminalLinkBox.href = 'http://localhost:7681';
+                }
+            }
+        }
+        
+        // Load on page load
+        window.addEventListener('DOMContentLoaded', updateTerminalLink);
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>📖 Player Guide</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Home</span>
+            </a>
+            <a href="getting-started.html" class="nav-item">
+                <span class="nav-icon">🚀</span>
+                <span class="nav-text">Getting Started</span>
+            </a>
+            <a href="port-forwarding.html" class="nav-item">
+                <span class="nav-icon">🔌</span>
+                <span class="nav-text">Port Forwarding</span>
+            </a>
+            <a href="ngrok-setup.html" class="nav-item">
+                <span class="nav-icon">🌐</span>
+                <span class="nav-text">Ngrok Setup</span>
+            </a>
+            <a href="troubleshooting.html" class="nav-item active">
+                <span class="nav-icon">🔧</span>
+                <span class="nav-text">Troubleshooting</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="#" id="terminal-link-box" target="_blank" class="sidebar-link">
+                <span class="nav-icon">🖥️</span>
+                <span class="nav-text">Server Terminal</span>
+            </a>
+            <a href="/mods.zip" class="sidebar-link">
+                <span class="nav-icon">📦</span>
+                <span class="nav-text">Download Mods</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="container">
+            <header>
+                <h1>🔧 Troubleshooting</h1>
+                <p>Common issues and solutions</p>
+            </header>
+            
+            <div class="content">
+                <section>
+                    <h2>Can't Connect to Server</h2>
+                    <ul>
+                        <li>Make sure the server is running</li>
+                        <li>Verify you have all the required mods installed</li>
+                        <li>Check that you're using Minecraft Forge 1.20.1</li>
+                        <li>Ensure mod versions match between client and server</li>
+                        <li>Verify the server address is correct (check the <a href="index.html">home page</a> for the current address)</li>
+                        <li>If using Ngrok, make sure both tunnels (Minecraft and voice) are running</li>
+                        <li>Check your firewall settings - it may be blocking the connection</li>
+                        <li>Try connecting from a different network to rule out local network issues</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2>Mod Compatibility Issues</h2>
+                    <ul>
+                        <li>Download the exact mods from the server (use the Download Mods link in the sidebar)</li>
+                        <li>Remove any client-side only mods that aren't on the server</li>
+                        <li>Check that all mods are for Minecraft 1.20.1</li>
+                        <li>Verify Forge version compatibility (47.4.0 recommended)</li>
+                        <li>Make sure you're not using incompatible mod versions</li>
+                        <li>Try removing all mods and reinstalling them one by one to identify problematic mods</li>
+                        <li>Check the server logs for mod-related errors</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2>Launcher Issues</h2>
+                    <ul>
+                        <li>Make sure you've completed the offline bypass steps if using it (see <a href="getting-started.html">Getting Started</a>)</li>
+                        <li>Don't delete the "No Profile" account in Prism Launcher</li>
+                        <li>Try creating a fresh instance if problems persist</li>
+                        <li>Update your launcher to the latest version</li>
+                        <li>Clear the launcher cache and try again</li>
+                        <li>Check that Java is properly installed and up to date</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2>Performance Issues</h2>
+                    <ul>
+                        <li>Allocate more RAM to Minecraft in your launcher settings (4GB minimum recommended)</li>
+                        <li>Close other applications to free up system resources</li>
+                        <li>Update your graphics drivers</li>
+                        <li>Lower your video settings in Minecraft</li>
+                        <li>Check if your computer meets the minimum system requirements</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2>Voice Chat Not Working</h2>
+                    <ul>
+                        <li>Verify that the voice chat port (24454 UDP) is properly forwarded or exposed via Ngrok</li>
+                        <li>Check that both Minecraft and voice ports are accessible (both are required)</li>
+                        <li>Ensure your voice chat mod is installed and matches the server version</li>
+                        <li>Check your microphone permissions in your operating system</li>
+                        <li>Verify that voice chat is enabled in the mod settings</li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2>Still Having Issues?</h2>
+                    <div class="info-box">
+                        <p>If you're still experiencing problems after trying these solutions:</p>
+                        <ul>
+                            <li>Check the <a href="getting-started.html">Getting Started</a> guide to ensure you've completed all setup steps</li>
+                            <li>Review the <a href="port-forwarding.html">Port Forwarding</a> or <a href="ngrok-setup.html">Ngrok Setup</a> guides if you're hosting a server</li>
+                            <li>Contact the server administrator for assistance</li>
+                            <li>Check the server logs for error messages</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+            
+            <footer>
+                <p>Minecraft Forge Server - Player Guide</p>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>
+

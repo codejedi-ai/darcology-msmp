@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Server - Player Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 10px 0;
+        }
+
+        .nav-item, .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .sidebar-link:hover {
+            background: #f8f9fa;
+            border-left-color: #667eea;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-left-color: #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-right: 12px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-text {
+            font-size: 14px;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid #e0e0e0;
+            padding: 10px 0;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        section {
+            margin-bottom: 40px;
+        }
+        
+        section h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        section h3 {
+            color: #764ba2;
+            font-size: 1.4em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .info-box strong {
+            color: #667eea;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+        }
+        
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .link-box {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            margin: 10px 10px 10px 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .link-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            text-decoration: none;
+        }
+        
+        .link-box.external {
+            background: #764ba2;
+        }
+        
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        button {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 200px;
+            }
+        }
+    </style>
+    <script>
+        // Load saved server address from localStorage
+        function loadServerAddress() {
+            const saved = localStorage.getItem('serverAddress');
+            if (saved) {
+                document.getElementById('server-address').textContent = saved;
+                updateTerminalLink(saved);
+            }
+        }
+        
+        // Update server address
+        function updateServerAddress() {
+            const current = document.getElementById('server-address').textContent;
+            const newAddress = prompt('Enter server address (hostname:port):', current);
+            if (newAddress && newAddress.trim()) {
+                const address = newAddress.trim();
+                document.getElementById('server-address').textContent = address;
+                updateTerminalLink(address);
+                localStorage.setItem('serverAddress', address);
+            }
+        }
+        
+        // Update terminal link based on server address
+        function updateTerminalLink(serverAddress) {
+            const parts = serverAddress.split(':');
+            const hostname = parts[0];
+            const terminalLink = document.getElementById('terminal-link');
+            const terminalLinkBox = document.getElementById('terminal-link-box');
+            if (terminalLink) {
+                terminalLink.textContent = `http://${hostname}:7681`;
+                terminalLink.href = `http://${hostname}:7681`;
+            }
+            if (terminalLinkBox) {
+                terminalLinkBox.href = `http://${hostname}:7681`;
+            }
+        }
+        
+        // Load on page load
+        window.addEventListener('DOMContentLoaded', loadServerAddress);
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>📖 Player Guide</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Home</span>
+            </a>
+            <a href="getting-started.html" class="nav-item">
+                <span class="nav-icon">🚀</span>
+                <span class="nav-text">Getting Started</span>
+            </a>
+            <a href="port-forwarding.html" class="nav-item">
+                <span class="nav-icon">🔌</span>
+                <span class="nav-text">Port Forwarding</span>
+            </a>
+            <a href="ngrok-setup.html" class="nav-item">
+                <span class="nav-icon">🌐</span>
+                <span class="nav-text">Ngrok Setup</span>
+            </a>
+            <a href="troubleshooting.html" class="nav-item">
+                <span class="nav-icon">🔧</span>
+                <span class="nav-text">Troubleshooting</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="#" id="terminal-link-box" target="_blank" class="sidebar-link">
+                <span class="nav-icon">🖥️</span>
+                <span class="nav-text">Server Terminal</span>
+            </a>
+            <a href="/mods.zip" class="sidebar-link">
+                <span class="nav-icon">📦</span>
+                <span class="nav-text">Download Mods</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="container">
+            <header>
+                <h1>🎮 Minecraft Server - Player Guide</h1>
+                <p>Everything you need to know to join and play</p>
+            </header>
+            
+            <div class="content">
+                <section>
+                    <h2>Welcome!</h2>
+                    <p>Welcome to the Minecraft Server Player Guide! This manual will help you get started with connecting to and playing on our modded Minecraft server.</p>
+                    <p>Use the sidebar navigation to explore different sections of the guide.</p>
+                </section>
+                
+                <section>
+                    <h2>Server Information</h2>
+                    <div class="info-box">
+                        <strong>Server Address:</strong> <code id="server-address">localhost:25565</code>
+                        <button onclick="updateServerAddress()" style="margin-left: 10px; padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 3px; cursor: pointer;">Change</button><br>
+                        <strong>Voice Chat Port:</strong> <code>24454</code><br>
+                        <strong>Server Version:</strong> Minecraft Forge 1.20.1<br>
+                        <strong>Web Terminal:</strong> <a href="#" id="terminal-link" target="_blank">http://localhost:7681</a>
+                    </div>
+                    <div class="warning-box" style="margin-top: 15px;">
+                        <strong>⚠️ Note:</strong> If you're using Ngrok or a custom domain, update the server address above. The address will be saved in your browser for this session.
+                    </div>
+                </section>
+                
+                <section>
+                    <h2>Quick Links</h2>
+                    <a href="getting-started.html" class="link-box">🚀 Getting Started Guide</a>
+                    <a href="port-forwarding.html" class="link-box">🔌 Port Forwarding</a>
+                    <a href="ngrok-setup.html" class="link-box">🌐 Ngrok Setup</a>
+                    <a href="troubleshooting.html" class="link-box">🔧 Troubleshooting</a>
+                </section>
+                
+                <section>
+                    <h2>Guide Overview</h2>
+                    <h3>Getting Started</h3>
+                    <p>Learn how to install a Minecraft launcher, set up Forge, install mods, and connect to the server. Perfect for first-time players!</p>
+                    <a href="getting-started.html" class="link-box">Read Getting Started Guide →</a>
+                    
+                    <h3>Port Forwarding</h3>
+                    <p>Information about required ports and security recommendations for server administrators.</p>
+                    <a href="port-forwarding.html" class="link-box">Read Port Forwarding Guide →</a>
+                    
+                    <h3>Ngrok Setup</h3>
+                    <p>Step-by-step instructions for using Ngrok to expose your server to the internet without router configuration. <strong>Both Minecraft and voice ports are required!</strong></p>
+                    <a href="ngrok-setup.html" class="link-box">Read Ngrok Setup Guide →</a>
+                    
+                    <h3>Troubleshooting</h3>
+                    <p>Common issues and solutions for connection problems, mod compatibility, and launcher issues.</p>
+                    <a href="troubleshooting.html" class="link-box">Read Troubleshooting Guide →</a>
+                </section>
+            </div>
+            
+            <footer>
+                <p>Minecraft Forge Server - Player Guide</p>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>

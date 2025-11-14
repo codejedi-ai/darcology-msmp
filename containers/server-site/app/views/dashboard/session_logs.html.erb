@@ -1,0 +1,126 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>📝 Session Logs</h1>
+    <p class="page-subtitle">Complete history of player join and leave events</p>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-header">
+      <h2>Player Session Events</h2>
+      <div class="stat-icon">📝</div>
+    </div>
+    <div class="stat-content">
+      <div class="logs-container">
+        <table class="logs-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Event</th>
+              <th>Player</th>
+            </tr>
+          </thead>
+          <tbody id="logs-tbody">
+            <% @sessions.each do |session| %>
+              <tr class="log-row <%= session[:event_type] %>">
+                <td><%= session[:timestamp].strftime("%Y-%m-%d %H:%M:%S") %></td>
+                <td>
+                  <span class="event-badge <%= session[:event_type] %>">
+                    <%= session[:event_type].capitalize %>
+                  </span>
+                </td>
+                <td><strong><%= session[:player_name] %></strong><br><small style="color: #666;"><%= session[:player_uuid] %></small></td>
+              </tr>
+            <% end %>
+            <% if @sessions.empty? %>
+              <tr>
+                <td colspan="3" class="no-logs">No session logs available yet</td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .logs-container {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .logs-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .logs-table thead {
+    background: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .logs-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  .logs-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .log-row:hover {
+    background: #f8f9fa;
+  }
+
+  .log-row.join {
+    background: #e8f5e9;
+  }
+
+  .log-row.leave {
+    background: #fff3e0;
+  }
+
+  .event-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .event-badge.join {
+    background: #4caf50;
+    color: white;
+  }
+
+  .event-badge.leave {
+    background: #ff9800;
+    color: white;
+  }
+
+  .no-logs {
+    text-align: center;
+    padding: 40px;
+    color: #999;
+    font-style: italic;
+  }
+</style>
+
+<script>
+  function updateSessionLogs() {
+    // Session logs are static, but we can refresh the page periodically
+    // or implement a more sophisticated update mechanism
+  }
+
+  // Refresh every 5 seconds to get new logs
+  setInterval(() => {
+    window.location.reload();
+  }, 5000);
+</script>
+

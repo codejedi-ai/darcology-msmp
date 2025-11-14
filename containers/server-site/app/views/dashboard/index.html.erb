@@ -1,0 +1,446 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>🏠 Server Status</h1>
+    <p class="page-subtitle">Real-time server monitoring and player tracking</p>
+    <p class="last-updated">Last updated: <span id="last-update-time"><%= Time.now.strftime("%H:%M:%S") %></span></p>
+  </div>
+
+  <!-- Server Status Card -->
+  <div class="server-status-card <%= @server_status[:status] || 'unknown' %>" id="server-status-card">
+    <div class="server-status-content">
+      <div class="server-status-icon" id="server-status-icon">
+        <% if @server_status[:status] == 'ready' %>
+          ✅
+        <% elsif @server_status[:status] == 'initializing' %>
+          ⏳
+        <% else %>
+          ❓
+        <% end %>
+      </div>
+      <div class="server-status-text">
+        <h2 id="server-status-title">
+          <% if @server_status[:status] == 'ready' %>
+            Server is Ready
+          <% elsif @server_status[:status] == 'initializing' %>
+            Server is Initializing
+          <% else %>
+            Server Status Unknown
+          <% end %>
+        </h2>
+        <p id="server-status-message"><%= @server_status[:message] || 'Checking server status...' %></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <!-- Players Card -->
+    <div class="stat-card players-card">
+      <div class="stat-header">
+        <h2>Players</h2>
+        <div class="stat-icon">👥</div>
+      </div>
+      <div class="stat-content">
+        <div class="player-count">
+          <div class="count-display">
+            <span class="count-number" id="online-count"><%= @online_count %></span>
+            <span class="count-label">Online</span>
+          </div>
+          <div class="count-total">
+            <span id="total-count"><%= @players.count %></span> total players
+          </div>
+        </div>
+        <div class="players-list" id="players-list">
+          <% @players.first(10).each do |player| %>
+            <div class="player-item <%= 'online' if player[:is_online] %>">
+              <div class="player-name"><%= player[:name] %></div>
+              <div class="player-status">
+                <% if player[:is_online] %>
+                  <span class="status-badge online-badge">● Online</span>
+                <% else %>
+                  <span class="status-badge offline-badge">○ Offline</span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+          <% if @players.count == 0 %>
+            <div class="no-players">No players have joined yet</div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Memory Card -->
+    <div class="stat-card memory-card">
+      <div class="stat-header">
+        <h2>Memory Usage</h2>
+        <div class="stat-icon">💾</div>
+      </div>
+      <div class="stat-content">
+        <div class="chart-container">
+          <canvas id="memory-chart" width="400" height="200"></canvas>
+          <div class="chart-value">
+            <span id="memory-percent"><%= @memory_stats[:usage_percent] %>%</span>
+          </div>
+        </div>
+        <div class="stat-details">
+          <div class="stat-row">
+            <span class="stat-label">Total:</span>
+            <span class="stat-value" id="memory-total"><%= format_bytes(@memory_stats[:total]) %></span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Used:</span>
+            <span class="stat-value" id="memory-used"><%= format_bytes(@memory_stats[:used]) %></span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Available:</span>
+            <span class="stat-value" id="memory-available"><%= format_bytes(@memory_stats[:available]) %></span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Free:</span>
+            <span class="stat-value" id="memory-free"><%= format_bytes(@memory_stats[:free]) %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CPU Card -->
+    <div class="stat-card cpu-card">
+      <div class="stat-header">
+        <h2>CPU Usage</h2>
+        <div class="stat-icon">⚡</div>
+      </div>
+      <div class="stat-content">
+        <div class="chart-container">
+          <canvas id="cpu-chart" width="400" height="200"></canvas>
+          <div class="chart-value">
+            <span id="cpu-percent"><%= @cpu_stats[:usage_percent] %>%</span>
+          </div>
+        </div>
+        <div class="stat-details">
+          <div class="stat-row">
+            <span class="stat-label">CPU Cores:</span>
+            <span class="stat-value" id="cpu-cores"><%= @cpu_stats[:cores] %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .last-updated {
+    color: #000;
+    font-size: 14px;
+    margin: 10px 0 0 0;
+  }
+
+  .memory-card .chart-value {
+    color: #4facfe;
+  }
+
+  .cpu-card .chart-value {
+    color: #fa709a;
+  }
+
+  .players-card {
+    grid-column: 1 / -1;
+  }
+
+  .chart-container {
+    height: 200px;
+  }
+</style>
+
+<script>
+  // Chart data storage - rolling window (like Linux monitoring tools)
+  const memoryHistory = [];
+  const cpuHistory = [];
+  const MAX_HISTORY = 60; // Keep last 60 data points (1 minute at 1s intervals)
+  
+  // Initialize with current values to start the chart
+  let chartInitialized = false;
+
+  function formatBytes(bytes) {
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes === 0) return '0 B';
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+
+  // Catmull-Rom spline interpolation for smooth curves
+  function catmullRomSpline(p0, p1, p2, p3, t) {
+    const t2 = t * t;
+    const t3 = t2 * t;
+    
+    return {
+      x: 0.5 * (
+        (2 * p1.x) +
+        (-p0.x + p2.x) * t +
+        (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 +
+        (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3
+      ),
+      y: 0.5 * (
+        (2 * p1.y) +
+        (-p0.y + p2.y) * t +
+        (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 +
+        (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3
+      )
+    };
+  }
+
+  function drawSmoothLine(ctx, points, color, lineWidth) {
+    if (points.length < 2) return;
+    
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.beginPath();
+    
+    if (points.length === 2) {
+      // Just draw a straight line for 2 points
+      ctx.moveTo(points[0].x, points[0].y);
+      ctx.lineTo(points[1].x, points[1].y);
+    } else {
+      // Use Catmull-Rom spline for smooth curves
+      const segments = 20; // Number of segments between each pair of points
+      
+      for (let i = 0; i < points.length - 1; i++) {
+        const p0 = i > 0 ? points[i - 1] : points[i];
+        const p1 = points[i];
+        const p2 = points[i + 1];
+        const p3 = i < points.length - 2 ? points[i + 2] : points[i + 1];
+        
+        for (let j = 0; j <= segments; j++) {
+          const t = j / segments;
+          const point = catmullRomSpline(p0, p1, p2, p3, t);
+          
+          if (i === 0 && j === 0) {
+            ctx.moveTo(point.x, point.y);
+          } else {
+            ctx.lineTo(point.x, point.y);
+          }
+        }
+      }
+    }
+    
+    ctx.stroke();
+  }
+
+  function drawLineChart(canvasId, data, color, label) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const width = canvas.offsetWidth;
+    const height = canvas.offsetHeight;
+    canvas.width = width;
+    canvas.height = height;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, width, height);
+    
+    if (data.length < 1) return;
+    
+    // Find min and max values (always show 0-100% range for consistency)
+    const min = 0;
+    const max = 100;
+    const range = max - min;
+    
+    // Padding
+    const padding = { top: 20, right: 20, bottom: 20, left: 40 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+    
+    // Draw grid lines (horizontal)
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = padding.top + (chartHeight / 4) * i;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(width - padding.right, y);
+      ctx.stroke();
+      
+      // Y-axis labels
+      const value = max - (range / 4) * i;
+      ctx.fillStyle = '#999';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(Math.round(value) + '%', padding.left - 5, y + 4);
+    }
+    
+    // Draw vertical grid lines for time markers
+    const step = Math.max(1, Math.floor(MAX_HISTORY / 5));
+    for (let i = 0; i < MAX_HISTORY; i += step) {
+      const x = padding.left + (chartWidth / (MAX_HISTORY - 1)) * i;
+      if (x <= width - padding.right) {
+        ctx.strokeStyle = '#f0f0f0';
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(x, padding.top);
+        ctx.lineTo(x, padding.top + chartHeight);
+        ctx.stroke();
+      }
+    }
+    
+    // Prepare points for spline interpolation
+    const points = data.map((point, index) => ({
+      x: padding.left + (chartWidth / (MAX_HISTORY - 1)) * index,
+      y: padding.top + chartHeight - ((point.value - min) / range) * chartHeight
+    }));
+    
+    // Draw smooth spline line
+    if (data.length >= 2) {
+      drawSmoothLine(ctx, points, color, 2);
+      
+      // Draw filled area under line
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.2;
+      const path = new Path2D();
+      
+      // Create smooth path for the area fill
+      if (points.length === 2) {
+        path.moveTo(points[0].x, padding.top + chartHeight);
+        path.lineTo(points[0].x, points[0].y);
+        path.lineTo(points[1].x, points[1].y);
+        path.lineTo(points[1].x, padding.top + chartHeight);
+      } else {
+        // Use the same spline for the area
+        const segments = 20;
+        path.moveTo(points[0].x, padding.top + chartHeight);
+        path.lineTo(points[0].x, points[0].y);
+        
+        for (let i = 0; i < points.length - 1; i++) {
+          const p0 = i > 0 ? points[i - 1] : points[i];
+          const p1 = points[i];
+          const p2 = points[i + 1];
+          const p3 = i < points.length - 2 ? points[i + 2] : points[i + 1];
+          
+          for (let j = 0; j <= segments; j++) {
+            const t = j / segments;
+            const point = catmullRomSpline(p0, p1, p2, p3, t);
+            path.lineTo(point.x, point.y);
+          }
+        }
+        
+        const lastPoint = points[points.length - 1];
+        path.lineTo(lastPoint.x, padding.top + chartHeight);
+        path.lineTo(points[0].x, padding.top + chartHeight);
+      }
+      
+      path.closePath();
+      ctx.fill(path);
+      ctx.globalAlpha = 1.0;
+    }
+  }
+
+  function updateDashboard() {
+    fetch('/stats')
+      .then(response => response.json())
+      .then(data => {
+        // Update memory stats
+        const memoryPercent = data.memory.usage_percent;
+        document.getElementById('memory-percent').textContent = memoryPercent + '%';
+        
+        // Add to history (rolling window - newest on right)
+        memoryHistory.push({ value: memoryPercent, time: Date.now() });
+        if (memoryHistory.length > MAX_HISTORY) {
+          memoryHistory.shift(); // Remove oldest (leftmost) point
+        }
+        
+        // Draw memory chart (scrolling rightwards)
+        drawLineChart('memory-chart', memoryHistory, '#4facfe', 'Memory');
+        
+        document.getElementById('memory-total').textContent = formatBytes(data.memory.total);
+        document.getElementById('memory-used').textContent = formatBytes(data.memory.used);
+        document.getElementById('memory-available').textContent = formatBytes(data.memory.available);
+        document.getElementById('memory-free').textContent = formatBytes(data.memory.free);
+
+        // Update CPU stats
+        const cpuPercent = data.cpu.usage_percent;
+        document.getElementById('cpu-percent').textContent = cpuPercent + '%';
+        
+        // Add to history (rolling window - newest on right)
+        cpuHistory.push({ value: cpuPercent, time: Date.now() });
+        if (cpuHistory.length > MAX_HISTORY) {
+          cpuHistory.shift(); // Remove oldest (leftmost) point
+        }
+        
+        // Draw CPU chart (scrolling rightwards)
+        drawLineChart('cpu-chart', cpuHistory, '#fa709a', 'CPU');
+        
+        document.getElementById('cpu-cores').textContent = data.cpu.cores;
+
+        // Update player stats
+        if (data.players) {
+          document.getElementById('online-count').textContent = data.players.online_count;
+          document.getElementById('total-count').textContent = data.players.total_count;
+          
+          // Update players list
+          const playersList = document.getElementById('players-list');
+          if (data.players.list && data.players.list.length > 0) {
+            playersList.innerHTML = data.players.list.slice(0, 10).map(player => {
+              const isOnline = player.is_online;
+                     
+                     return `
+                       <div class="player-item ${isOnline ? 'online' : ''}">
+                         <div class="player-name">${player.name}</div>
+                         <div class="player-status">
+                           <span class="status-badge ${isOnline ? 'online-badge' : 'offline-badge'}">
+                             ${isOnline ? '● Online' : '○ Offline'}
+                           </span>
+                         </div>
+                       </div>
+                     `;
+            }).join('');
+          } else {
+            playersList.innerHTML = '<div class="no-players">No players have joined yet</div>';
+          }
+        }
+
+        // Update server status
+        if (data.server_status) {
+          const statusCard = document.getElementById('server-status-card');
+          const statusIcon = document.getElementById('server-status-icon');
+          const statusTitle = document.getElementById('server-status-title');
+          const statusMessage = document.getElementById('server-status-message');
+          
+          const status = data.server_status.status || 'unknown';
+          const message = data.server_status.message || 'Unknown status';
+          
+          // Update card class
+          statusCard.className = 'server-status-card ' + status;
+          
+          // Update icon
+          if (status === 'ready') {
+            statusIcon.textContent = '✅';
+            statusTitle.textContent = 'Server is Ready';
+          } else if (status === 'initializing') {
+            statusIcon.textContent = '⏳';
+            statusTitle.textContent = 'Server is Initializing';
+          } else {
+            statusIcon.textContent = '❓';
+            statusTitle.textContent = 'Server Status Unknown';
+          }
+          
+          // Update message
+          statusMessage.textContent = message;
+        }
+
+        // Update last updated time
+        const now = new Date();
+        document.getElementById('last-update-time').textContent = 
+          now.toLocaleTimeString();
+      })
+      .catch(error => {
+        console.error('Error fetching stats:', error);
+      });
+  }
+
+  // Update every 1 second
+  setInterval(updateDashboard, 1000);
+
+  // Initial update after 0.5 seconds
+  setTimeout(updateDashboard, 500);
+</script>
+

@@ -1,0 +1,35 @@
+# Exclude runtime data from build context
+world/
+logs/
+libraries/
+crash-reports/
+
+# Exclude server files that will be generated at runtime
+*.jar
+!forge-*-installer.jar
+*.log
+*.json
+!server.properties
+ops.json
+whitelist.json
+banned-*.json
+usercache.json
+
+# Exclude version control
+.git/
+.gitignore
+
+# Exclude Docker files
+docker-compose.yml
+.dockerignore
+README.md
+Dockerfile
+
+# Exclude other services
+tor-fast-API-Stuff/
+
+# Exclude temp files
+*.tmp
+*.bak
+*.swp
+*~

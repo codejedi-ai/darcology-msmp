@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Minecraft Server Dashboard</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= render 'layouts/sidebar_styles' %>
+  </head>
+
+  <body>
+    <%= render 'layouts/sidebar' %>
+    <div class="main-content">
+      <%= yield %>
+    </div>
+  </body>
+</html>
+

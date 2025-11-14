@@ -1,0 +1,244 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: minecraft
+---
+# PersistentVolumeClaim for world data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minecraft-world
+  namespace: minecraft
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+  storageClassName: standard  # Change based on your cluster
+---
+# PersistentVolumeClaim for logs
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minecraft-logs
+  namespace: minecraft
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: standard
+---
+# PersistentVolumeClaim for shared data (needs ReadWriteMany for sharing)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: minecraft-data
+  namespace: minecraft
+spec:
+  accessModes:
+    - ReadWriteMany  # Allows multiple pods to mount
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: nfs-client  # Use NFS or similar for ReadWriteMany
+---
+# ConfigMap for server.properties (optional - can also use env vars)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: minecraft-config
+  namespace: minecraft
+data:
+  # server.properties will be managed by the container from env vars
+  # This is just an example if you want to override
+  # server.properties: |
+  #   server-port=25565
+  #   online-mode=true
+---
+# Minecraft Server Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft-server
+  namespace: minecraft
+spec:
+  replicas: 1  # Only one Minecraft server instance
+  selector:
+    matchLabels:
+      app: minecraft-server
+  template:
+    metadata:
+      labels:
+        app: minecraft-server
+    spec:
+      containers:
+      - name: minecraft
+        image: minecraft-server:latest  # Update with your registry
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 25565
+          name: minecraft
+          protocol: TCP
+        - containerPort: 24454
+          name: voicechat
+          protocol: UDP
+        - containerPort: 7681
+          name: terminal
+          protocol: TCP
+        env:
+        - name: MAX_RAM
+          value: "4G"
+        - name: MIN_RAM
+          value: "4G"
+        - name: ONLINE_MODE
+          value: "true"
+        # Add more env vars as needed
+        volumeMounts:
+        - name: world-data
+          mountPath: /minecraft/world
+        - name: logs-data
+          mountPath: /minecraft/logs
+        - name: shared-data
+          mountPath: /data
+        - name: libraries
+          mountPath: /minecraft/libraries
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2"
+          limits:
+            memory: "6Gi"
+            cpu: "4"
+        livenessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "screen -list | grep -q minecraft"
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          exec:
+            command:
+            - /bin/bash
+            - -c
+            - "test -f /minecraft/logs/latest.log"
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      volumes:
+      - name: world-data
+        persistentVolumeClaim:
+          claimName: minecraft-world
+      - name: logs-data
+        persistentVolumeClaim:
+          claimName: minecraft-logs
+      - name: shared-data
+        persistentVolumeClaim:
+          claimName: minecraft-data
+      - name: libraries
+        emptyDir: {}  # Temporary, can use PVC if needed
+---
+# Server Site Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: server-site
+  namespace: minecraft
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: server-site
+  template:
+    metadata:
+      labels:
+        app: server-site
+    spec:
+      containers:
+      - name: nginx
+        image: minecraft-server-site:latest  # Update with your registry
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        volumeMounts:
+        - name: shared-data
+          mountPath: /usr/share/nginx/html/data
+          readOnly: true
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+      volumes:
+      - name: shared-data
+        persistentVolumeClaim:
+          claimName: minecraft-data
+---
+# Service for Minecraft Server
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft-server
+  namespace: minecraft
+spec:
+  type: LoadBalancer  # Use NodePort or ClusterIP if LoadBalancer not available
+  ports:
+  - port: 25565
+    targetPort: 25565
+    protocol: TCP
+    name: minecraft
+  - port: 24454
+    targetPort: 24454
+    protocol: UDP
+    name: voicechat
+  - port: 7681
+    targetPort: 7681
+    protocol: TCP
+    name: terminal
+  selector:
+    app: minecraft-server
+---
+# Service for Server Site
+apiVersion: v1
+kind: Service
+metadata:
+  name: server-site
+  namespace: minecraft
+spec:
+  type: LoadBalancer  # Use NodePort or ClusterIP if LoadBalancer not available
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    name: http
+  selector:
+    app: server-site
+---
+# Optional: Ingress for Server Site (if using Ingress controller)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: server-site-ingress
+  namespace: minecraft
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: minecraft.example.com  # Change to your domain
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: server-site
+            port:
+              number: 80
+

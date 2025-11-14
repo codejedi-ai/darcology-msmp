@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port Forwarding - Minecraft Server Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 10px 0;
+        }
+
+        .nav-item, .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .sidebar-link:hover {
+            background: #f8f9fa;
+            border-left-color: #667eea;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-left-color: #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-right: 12px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-text {
+            font-size: 14px;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid #e0e0e0;
+            padding: 10px 0;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        section {
+            margin-bottom: 40px;
+        }
+        
+        section h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        section h3 {
+            color: #764ba2;
+            font-size: 1.4em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .info-box strong {
+            color: #667eea;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+    <script>
+        // Update terminal link based on server address
+        function updateTerminalLink() {
+            const saved = localStorage.getItem('serverAddress');
+            if (saved) {
+                const parts = saved.split(':');
+                const hostname = parts[0];
+                const terminalLinkBox = document.getElementById('terminal-link-box');
+                if (terminalLinkBox) {
+                    terminalLinkBox.href = `http://${hostname}:7681`;
+                }
+            } else {
+                const terminalLinkBox = document.getElementById('terminal-link-box');
+                if (terminalLinkBox) {
+                    terminalLinkBox.href = 'http://localhost:7681';
+                }
+            }
+        }
+        
+        // Load on page load
+        window.addEventListener('DOMContentLoaded', updateTerminalLink);
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>📖 Player Guide</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Home</span>
+            </a>
+            <a href="getting-started.html" class="nav-item">
+                <span class="nav-icon">🚀</span>
+                <span class="nav-text">Getting Started</span>
+            </a>
+            <a href="port-forwarding.html" class="nav-item active">
+                <span class="nav-icon">🔌</span>
+                <span class="nav-text">Port Forwarding</span>
+            </a>
+            <a href="ngrok-setup.html" class="nav-item">
+                <span class="nav-icon">🌐</span>
+                <span class="nav-text">Ngrok Setup</span>
+            </a>
+            <a href="troubleshooting.html" class="nav-item">
+                <span class="nav-icon">🔧</span>
+                <span class="nav-text">Troubleshooting</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="#" id="terminal-link-box" target="_blank" class="sidebar-link">
+                <span class="nav-icon">🖥️</span>
+                <span class="nav-text">Server Terminal</span>
+            </a>
+            <a href="/mods.zip" class="sidebar-link">
+                <span class="nav-icon">📦</span>
+                <span class="nav-text">Download Mods</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="container">
+            <header>
+                <h1>🔌 Port Forwarding & Security</h1>
+                <p>Configure your router to allow external connections</p>
+            </header>
+            
+            <div class="content">
+                <section>
+                    <h2>Required Ports</h2>
+                    <p>To allow others to connect to your server, you need to open the following ports:</p>
+                    <div class="info-box">
+                        <strong>Required Ports:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li><strong>25565 (TCP)</strong> - Minecraft server (required for players to connect)</li>
+                            <li><strong>24454 (UDP)</strong> - Voice chat mod (required for voice chat functionality)</li>
+                            <li><strong>7681 (TCP)</strong> - Web terminal (optional, for server management)</li>
+                            <li><strong>80 (TCP)</strong> - Player guide site (optional, for this website)</li>
+                        </ul>
+                    </div>
+                </section>
+                
+                <section>
+                    <h2>How to Port Forward</h2>
+                    <p>Port forwarding allows external devices to connect to your server through your router. The exact steps vary by router manufacturer, but the general process is:</p>
+                    <ol>
+                        <li>Access your router's admin panel (usually at <code>192.168.1.1</code> or <code>192.168.0.1</code>)</li>
+                        <li>Log in with your router credentials</li>
+                        <li>Navigate to "Port Forwarding" or "Virtual Server" settings</li>
+                        <li>Add a new port forwarding rule for each port:
+                            <ul>
+                                <li><strong>Port 25565 (TCP):</strong> Forward to your server's local IP address</li>
+                                <li><strong>Port 24454 (UDP):</strong> Forward to your server's local IP address</li>
+                            </ul>
+                        </li>
+                        <li>Save the settings and restart your router if needed</li>
+                    </ol>
+                    <div class="info-box">
+                        <strong>💡 Finding Your Server's Local IP:</strong> On Windows, run <code>ipconfig</code> in Command Prompt. On Linux/Mac, run <code>ifconfig</code> or <code>ip addr</code>. Look for your local network IP (usually starts with 192.168.x.x or 10.x.x.x).
+                    </div>
+                </section>
+                
+                <section>
+                    <h2>Security Recommendations</h2>
+                    <div class="warning-box">
+                        <strong>Security Best Practices:</strong>
+                        <ul style="margin-top: 10px;">
+                            <li>Only open port <strong>25565</strong> if you want others to connect</li>
+                            <li>Consider using a firewall to restrict access to specific IPs</li>
+                            <li>Port <strong>7681</strong> (web terminal) should only be opened if you need remote access</li>
+                            <li>Port <strong>80</strong> (this site) is optional and can be closed if not needed</li>
+                            <li>Voice chat port <strong>24454</strong> is required for voice chat functionality</li>
+                            <li>Use strong passwords for your server and router admin panel</li>
+                            <li>Consider using a whitelist on your Minecraft server to control who can join</li>
+                            <li>Keep your router firmware updated</li>
+                        </ul>
+                    </div>
+                </section>
+                
+                <section>
+                    <h2>Alternative: Using Ngrok</h2>
+                    <p>If you can't configure port forwarding on your router, or want a quick way to share your server, consider using <a href="ngrok-setup.html">Ngrok</a>. Ngrok creates a secure tunnel to your server without requiring router configuration.</p>
+                    <a href="ngrok-setup.html" class="link-box">Learn about Ngrok Setup →</a>
+                </section>
+            </div>
+            
+            <footer>
+                <p>Minecraft Forge Server - Player Guide</p>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,102 @@
+services:
+  minecraft-server:
+    build:
+      context: .
+      dockerfile: containers/minecraft/Dockerfile
+    container_name: minecraft-server
+    restart: unless-stopped
+
+    ports:
+      - "25565:25565"  # Minecraft server port
+      - "24454:24454"  # Voice chat mod port
+      - "7681:7681"    # ttyd web terminal on port 7681
+
+    volumes:
+      # Mount world folder from host
+      - ./world:/minecraft/world
+
+      # Mount logs folder from host
+      - ./logs:/minecraft/logs
+
+      # Mount libraries folder (persistent across restarts)
+      - minecraft-libraries:/minecraft/libraries
+
+      # Mount data folder for shared data (mods.zip, usercache.json)
+      - ./data:/data
+
+    environment:
+      # Memory settings (adjust both to allocate RAM to Minecraft server)
+      # Important: Set MAX_RAM and MIN_RAM to the same value for best performance
+      # Container memory limit below should be ~1.5-2GB more than these values
+      - MAX_RAM=4G
+      - MIN_RAM=4G
+
+      # Java options
+      - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
+
+      # Server Properties (Required)
+      # ONLINE_MODE: true for authentication, false for cracked servers
+      - ONLINE_MODE=true
+      # LEVEL_NAME is not needed - it's already set to "world" in server.properties
+      # and should always remain "world" (the container's internal folder name)
+
+      # Optional Server Properties (uncomment to override defaults)
+      # If not set, uses values from minecraft/server.properties
+      # - MOTD=A Minecraft Server
+      # - MAX_PLAYERS=20
+      # - DIFFICULTY=normal
+      # - GAMEMODE=survival
+      # - PVP=true
+      # - HARDCORE=false
+      # - WHITE_LIST=false
+      # - LEVEL_SEED=
+      # - VIEW_DISTANCE=10
+      # - SIMULATION_DISTANCE=10
+      # - SPAWN_PROTECTION=16
+      # - ALLOW_NETHER=true
+      # - ALLOW_FLIGHT=false
+      # - ENABLE_COMMAND_BLOCK=false
+      # - SPAWN_ANIMALS=true
+      # - SPAWN_MONSTERS=true
+      # - SPAWN_NPCS=true
+
+    stdin_open: true
+    tty: true
+
+    # Resource limits
+    # Container memory should be MAX_RAM + ~1.5-2GB for JVM overhead
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+        reservations:
+          memory: 4G
+
+  server-site:
+    build:
+      context: .
+      dockerfile: containers/server-site/Dockerfile
+    container_name: minecraft-server-site
+    restart: unless-stopped
+
+    ports:
+      - "80:80"        # Static site on port 80
+
+    volumes:
+      # Mount data folder for mods.zip download
+      - ./data:/usr/share/nginx/html/data:ro
+
+    depends_on:
+      - minecraft-server
+
+    # Resource limits (static site needs minimal memory)
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+
+volumes:
+  minecraft-libraries:
+    driver: local

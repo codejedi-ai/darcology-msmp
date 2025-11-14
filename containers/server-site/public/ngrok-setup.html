@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ngrok Setup - Minecraft Server Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+        }
+        
+        .sidebar {
+            width: 250px;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .sidebar-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 10px 0;
+        }
+
+        .nav-item, .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .sidebar-link:hover {
+            background: #f8f9fa;
+            border-left-color: #667eea;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-left-color: #667eea;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            margin-right: 12px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-text {
+            font-size: 14px;
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid #e0e0e0;
+            padding: 10px 0;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        section {
+            margin-bottom: 40px;
+        }
+        
+        section h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        section h3 {
+            color: #764ba2;
+            font-size: 1.4em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .info-box strong {
+            color: #667eea;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #e83e8c;
+        }
+        
+        pre {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        pre code {
+            background: none;
+            color: inherit;
+            padding: 0;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-top: 10px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        .link-box {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            margin: 10px 10px 10px 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .link-box:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            text-decoration: none;
+        }
+        
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+    <script>
+        // Update terminal link based on server address
+        function updateTerminalLink() {
+            const saved = localStorage.getItem('serverAddress');
+            if (saved) {
+                const parts = saved.split(':');
+                const hostname = parts[0];
+                const terminalLinkBox = document.getElementById('terminal-link-box');
+                if (terminalLinkBox) {
+                    terminalLinkBox.href = `http://${hostname}:7681`;
+                }
+            } else {
+                const terminalLinkBox = document.getElementById('terminal-link-box');
+                if (terminalLinkBox) {
+                    terminalLinkBox.href = 'http://localhost:7681';
+                }
+            }
+        }
+        
+        // Load on page load
+        window.addEventListener('DOMContentLoaded', updateTerminalLink);
+    </script>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>📖 Player Guide</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-text">Home</span>
+            </a>
+            <a href="getting-started.html" class="nav-item">
+                <span class="nav-icon">🚀</span>
+                <span class="nav-text">Getting Started</span>
+            </a>
+            <a href="port-forwarding.html" class="nav-item">
+                <span class="nav-icon">🔌</span>
+                <span class="nav-text">Port Forwarding</span>
+            </a>
+            <a href="ngrok-setup.html" class="nav-item active">
+                <span class="nav-icon">🌐</span>
+                <span class="nav-text">Ngrok Setup</span>
+            </a>
+            <a href="troubleshooting.html" class="nav-item">
+                <span class="nav-icon">🔧</span>
+                <span class="nav-text">Troubleshooting</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="#" id="terminal-link-box" target="_blank" class="sidebar-link">
+                <span class="nav-icon">🖥️</span>
+                <span class="nav-text">Server Terminal</span>
+            </a>
+            <a href="/mods.zip" class="sidebar-link">
+                <span class="nav-icon">📦</span>
+                <span class="nav-text">Download Mods</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="container">
+            <header>
+                <h1>🌐 Using Ngrok for Public Access</h1>
+                <p>Expose your server without router configuration</p>
+            </header>
+            
+            <div class="content">
+                <section>
+                    <h2>What is Ngrok?</h2>
+                    <p>Ngrok allows you to expose your local server to the internet without port forwarding. This is useful if you can't configure your router or want a quick way to share your server.</p>
+                </section>
+                
+                <section>
+                    <h2>Step 1: Install Ngrok</h2>
+                    <p>Download Ngrok from <a href="https://ngrok.com/download" target="_blank">https://ngrok.com/download</a> and install it on your computer.</p>
+                </section>
+                
+                <section>
+                    <h2>Step 2: Create an Ngrok Account (Free)</h2>
+                    <ol>
+                        <li>Sign up at <a href="https://dashboard.ngrok.com/signup" target="_blank">https://dashboard.ngrok.com/signup</a></li>
+                        <li>Get your authtoken from the dashboard</li>
+                        <li>Run: <code>ngrok config add-authtoken YOUR_TOKEN</code></li>
+                    </ol>
+                </section>
+                
+                <section>
+                    <h2>Step 3: Expose Minecraft Server Port and Voice Port</h2>
+                    <p><strong>Both ports are compulsory!</strong> Open two terminals and run:</p>
+                    <pre><code># Terminal 1: Minecraft server (REQUIRED)
+ngrok tcp 25565
+
+# Terminal 2: Voice chat (REQUIRED)
+ngrok udp 24454</code></pre>
+                    <p>Ngrok will display forwarding addresses like:</p>
+                    <pre><code># Minecraft server
+tcp://0.tcp.ngrok.io:12345
+
+# Voice chat
+udp://0.udp.ngrok.io:54321</code></pre>
+                    <p>This is your public server address! Share the <strong>hostname</strong> and <strong>port</strong> with players:</p>
+                    <ul>
+                        <li><strong>Minecraft Hostname:</strong> <code>0.tcp.ngrok.io</code></li>
+                        <li><strong>Minecraft Port:</strong> <code>12345</code></li>
+                        <li><strong>Voice Hostname:</strong> <code>0.udp.ngrok.io</code></li>
+                        <li><strong>Voice Port:</strong> <code>54321</code></li>
+                    </ul>
+                </section>
+                
+                <section>
+                    <h2>Step 4: Share with Players</h2>
+                    <p>Players should connect using:</p>
+                    <div class="info-box">
+                        <strong>Server Address:</strong> <code>0.tcp.ngrok.io:12345</code><br>
+                        (Replace with your actual Ngrok hostname and port)
+                    </div>
+                </section>
+                
+                <section>
+                    <h2>Important Notes</h2>
+                    <div class="warning-box">
+                        <ul>
+                            <li><strong>Free tier limitations:</strong> The Ngrok URL changes every time you restart Ngrok. For a permanent address, consider the paid plan or use port forwarding.</li>
+                            <li><strong>Keep Ngrok running:</strong> Both tunnels (Minecraft and voice chat) must stay active for players to connect. Don't close the terminals running Ngrok.</li>
+                            <li><strong>Security:</strong> Anyone with the Ngrok URL can connect. Consider using a whitelist on your Minecraft server.</li>
+                            <li><strong>Performance:</strong> Ngrok adds some latency. For best performance, use direct port forwarding instead.</li>
+                        </ul>
+                    </div>
+                </section>
+                
+                <section>
+                    <h2>Optional: Expose Web Terminal</h2>
+                    <p>If you want to expose the web terminal, open an additional terminal:</p>
+                    <pre><code># Terminal 3: Web terminal (optional)
+ngrok http 7681</code></pre>
+                    <p><strong>Note:</strong> The Minecraft server (port 25565) and voice chat (port 24454) are already required in Step 3 above.</p>
+                </section>
+            </div>
+            
+            <footer>
+                <p>Minecraft Forge Server - Player Guide</p>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>
+

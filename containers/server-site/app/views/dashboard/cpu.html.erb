@@ -1,0 +1,197 @@
+<div class="page-container">
+  <div class="page-header">
+    <h1>⚡ CPU Usage</h1>
+    <p class="page-subtitle">Real-time CPU monitoring and historical data</p>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-header">
+      <h2>Current CPU Usage</h2>
+      <div class="stat-icon">⚡</div>
+    </div>
+    <div class="stat-content">
+      <div class="chart-container">
+        <canvas id="cpu-chart" width="800" height="300"></canvas>
+        <div class="chart-value">
+          <span id="cpu-percent"><%= @cpu_stats[:usage_percent] %>%</span>
+        </div>
+      </div>
+      <div class="stat-details">
+        <div class="stat-row">
+          <span class="stat-label">CPU Cores:</span>
+          <span class="stat-value" id="cpu-cores"><%= @cpu_stats[:cores] %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .page-container {
+    padding: 20px;
+  }
+
+  .page-header {
+    margin-bottom: 30px;
+  }
+
+  .page-header h1 {
+    color: #333;
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 5px;
+  }
+
+  .page-subtitle {
+    color: #000;
+    font-size: 16px;
+  }
+</style>
+
+<script>
+  const cpuHistory = [];
+  const MAX_HISTORY = 60;
+
+  function formatDuration(seconds) {
+    if (!seconds || seconds < 0) return '0s';
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    const parts = [];
+    if (days > 0) parts.push(days + 'd');
+    if (hours > 0) parts.push(hours + 'h');
+    if (minutes > 0) parts.push(minutes + 'm');
+    if (secs > 0 || parts.length === 0) parts.push(secs + 's');
+    return parts.join(' ');
+  }
+
+  function catmullRomSpline(p0, p1, p2, p3, t) {
+    const t2 = t * t;
+    const t3 = t2 * t;
+    return {
+      x: 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * t + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3),
+      y: 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * t + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3)
+    };
+  }
+
+  function drawSmoothLine(ctx, points, color, lineWidth) {
+    if (points.length < 2) return;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineWidth;
+    ctx.beginPath();
+    if (points.length === 2) {
+      ctx.moveTo(points[0].x, points[0].y);
+      ctx.lineTo(points[1].x, points[1].y);
+    } else {
+      const segments = 20;
+      for (let i = 0; i < points.length - 1; i++) {
+        const p0 = i > 0 ? points[i - 1] : points[i];
+        const p1 = points[i];
+        const p2 = points[i + 1];
+        const p3 = i < points.length - 2 ? points[i + 2] : points[i + 1];
+        for (let j = 0; j <= segments; j++) {
+          const t = j / segments;
+          const point = catmullRomSpline(p0, p1, p2, p3, t);
+          if (i === 0 && j === 0) {
+            ctx.moveTo(point.x, point.y);
+          } else {
+            ctx.lineTo(point.x, point.y);
+          }
+        }
+      }
+    }
+    ctx.stroke();
+  }
+
+  function drawLineChart(canvasId, data, color, label) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const width = canvas.offsetWidth;
+    const height = canvas.offsetHeight;
+    canvas.width = width;
+    canvas.height = height;
+    ctx.clearRect(0, 0, width, height);
+    if (data.length < 1) return;
+    const min = 0;
+    const max = 100;
+    const range = max - min;
+    const padding = { top: 20, right: 20, bottom: 20, left: 40 };
+    const chartWidth = width - padding.left - padding.right;
+    const chartHeight = height - padding.top - padding.bottom;
+    ctx.strokeStyle = '#e0e0e0';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 4; i++) {
+      const y = padding.top + (chartHeight / 4) * i;
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(width - padding.right, y);
+      ctx.stroke();
+      const value = max - (range / 4) * i;
+      ctx.fillStyle = '#999';
+      ctx.font = '10px sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(Math.round(value) + '%', padding.left - 5, y + 4);
+    }
+    const points = data.map((point, index) => ({
+      x: padding.left + (chartWidth / (MAX_HISTORY - 1)) * index,
+      y: padding.top + chartHeight - ((point.value - min) / range) * chartHeight
+    }));
+    if (data.length >= 2) {
+      drawSmoothLine(ctx, points, color, 2);
+      ctx.fillStyle = color;
+      ctx.globalAlpha = 0.2;
+      const path = new Path2D();
+      if (points.length === 2) {
+        path.moveTo(points[0].x, padding.top + chartHeight);
+        path.lineTo(points[0].x, points[0].y);
+        path.lineTo(points[1].x, points[1].y);
+        path.lineTo(points[1].x, padding.top + chartHeight);
+      } else {
+        const segments = 20;
+        path.moveTo(points[0].x, padding.top + chartHeight);
+        path.lineTo(points[0].x, points[0].y);
+        for (let i = 0; i < points.length - 1; i++) {
+          const p0 = i > 0 ? points[i - 1] : points[i];
+          const p1 = points[i];
+          const p2 = points[i + 1];
+          const p3 = i < points.length - 2 ? points[i + 2] : points[i + 1];
+          for (let j = 0; j <= segments; j++) {
+            const t = j / segments;
+            const point = catmullRomSpline(p0, p1, p2, p3, t);
+            path.lineTo(point.x, point.y);
+          }
+        }
+        const lastPoint = points[points.length - 1];
+        path.lineTo(lastPoint.x, padding.top + chartHeight);
+        path.lineTo(points[0].x, padding.top + chartHeight);
+      }
+      path.closePath();
+      ctx.fill(path);
+      ctx.globalAlpha = 1.0;
+    }
+  }
+
+  function updateCPU() {
+    fetch('/stats')
+      .then(response => response.json())
+      .then(data => {
+        const cpuPercent = data.cpu.usage_percent;
+        document.getElementById('cpu-percent').textContent = cpuPercent + '%';
+        cpuHistory.push({ value: cpuPercent, time: Date.now() });
+        if (cpuHistory.length > MAX_HISTORY) {
+          cpuHistory.shift();
+        }
+        drawLineChart('cpu-chart', cpuHistory, '#fa709a', 'CPU');
+        document.getElementById('cpu-cores').textContent = data.cpu.cores;
+      })
+      .catch(error => {
+        console.error('Error fetching CPU stats:', error);
+      });
+  }
+
+  setInterval(updateCPU, 1000);
+  setTimeout(updateCPU, 500);
+</script>
+

@@ -1,10 +1,12 @@
-# Data Folder Schema Documentation
+# Server Site Data Schema
 
-This document describes the schema and structure of each file stored in the `/data` directory (mounted at `./data` on the host machine).
+This document describes the data files created and managed by the **server-site** (Rails dashboard) service in the `/data` directory.
 
-## File Overview
+## Overview
 
-The `/data` folder contains the following structure:
+The server-site service manages player tracking, playtime statistics, system monitoring, and session logging. All data is stored in the shared `/data` directory (mounted at `./data` on the host machine).
+
+## Data Directory Structure
 
 ```
 /data/
@@ -18,12 +20,13 @@ The `/data` folder contains the following structure:
 └── memory_stats.csv          # Memory usage history (CSV)
 ```
 
-**Important:** All player identification is now UUID-based. Player UUIDs are the primary key for all player-related data.
+**Important:** All player identification is UUID-based. Player UUIDs are the primary key for all player-related data.
 
 ---
 
-## 1. `/data/online/{uuid}.json`
+## 1. Online Players: `/data/online/{uuid}.json`
 
+**Service:** server-site (DataLogger)  
 **Type:** JSON  
 **Purpose:** Indicates a player is currently online  
 **File Naming:** `{uuid}.json` where `{uuid}` is the player's Minecraft UUID  
@@ -69,8 +72,9 @@ The `/data` folder contains the following structure:
 
 ---
 
-## 2. `/data/player_playtime/{uuid}.json`
+## 2. Player Playtime: `/data/player_playtime/{uuid}.json`
 
+**Service:** server-site (DataLogger)  
 **Type:** JSON  
 **Purpose:** Stores cumulative playtime statistics for each player  
 **File Naming:** `{uuid}.json` where `{uuid}` is the player's Minecraft UUID  
@@ -129,8 +133,9 @@ The `/data` folder contains the following structure:
 
 ---
 
-## 3. `player_sessions.csv`
+## 3. Player Sessions: `player_sessions.csv`
 
+**Service:** server-site (DataLogger)  
 **Type:** CSV (Comma-Separated Values)  
 **Purpose:** Logs all player join and leave events  
 **Retention:** Unlimited (grows over time)  
@@ -164,8 +169,9 @@ timestamp,event_type,player_uuid,player_name
 
 ---
 
-## 4. `player_tracker_state.json`
+## 4. Player Tracker State: `player_tracker_state.json`
 
+**Service:** server-site (PlayerTracker)  
 **Type:** JSON  
 **Purpose:** Internal state persistence for the PlayerTracker (runtime state)  
 **Retention:** Persistent (updated frequently during runtime)  
@@ -239,8 +245,9 @@ timestamp,event_type,player_uuid,player_name
 
 ---
 
-## 5. `cpu_stats.csv`
+## 5. CPU Statistics: `cpu_stats.csv`
 
+**Service:** server-site (DataLogger)  
 **Type:** CSV (Comma-Separated Values)  
 **Purpose:** Historical CPU usage statistics  
 **Retention:** Last 10,000 entries (auto-trimmed)
@@ -271,8 +278,9 @@ timestamp,usage_percent,cores
 
 ---
 
-## 6. `memory_stats.csv`
+## 6. Memory Statistics: `memory_stats.csv`
 
+**Service:** server-site (DataLogger)  
 **Type:** CSV (Comma-Separated Values)  
 **Purpose:** Historical memory usage statistics  
 **Retention:** Last 10,000 entries (auto-trimmed)
@@ -311,7 +319,7 @@ timestamp,total,used,free,available,usage_percent
 
 Player UUIDs are resolved from `/minecraft/usercache.json` which is maintained by the Minecraft server. The UUID resolver:
 
-1. **Primary Source**: Reads UUID mappings from `/minecraft/usercache.json`
+1. **Primary Source**: Reads UUID mappings from `/minecraft/usercache.json` (or `/data/usercache.json` if available)
 2. **Fallback**: If UUID not found in usercache, generates a deterministic UUID v5 from username
 3. **Caching**: UUID mappings are cached for performance
 4. **Reloading**: Cache is periodically reloaded to catch new players
@@ -348,3 +356,12 @@ All files in the `/data` directory are:
 - CSV files are automatically trimmed to prevent excessive growth
 - **Player data is keyed by UUID** (not username) - this ensures data consistency even if players change their usernames
 - UUID is the primary key/superkey for all player-related data structures
+
+## Service Implementation
+
+The data files are managed by the following Rails models and services:
+
+- **DataLogger**: Handles creation/updates of online players, playtime, sessions, and system stats
+- **PlayerTracker**: Manages runtime player state and persistence
+- **DashboardController**: Reads data for display and triggers logging of system statistics
+

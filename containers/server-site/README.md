@@ -83,9 +83,14 @@ The dashboard is a lightweight Rails application that:
 3. Handles mod file zipping for downloads
 4. Runs in production mode with minimal dependencies
 
+## Data Management
+
+The dashboard manages player tracking, playtime statistics, and system monitoring data in the shared `/data` directory. See [DATA-SCHEMA.md](./DATA-SCHEMA.md) for detailed documentation on the data file formats and structure.
+
 ## Notes
 
 - The dashboard uses inline CSS styles to avoid asset pipeline complications
 - Statistics are calculated server-side from `/proc` filesystem
 - The mods download feature looks for mods in `/minecraft/mods/` directory
 - All functionality is designed to work within the Docker container environment
+- Player data is stored in `/data` directory (shared with minecraft container)

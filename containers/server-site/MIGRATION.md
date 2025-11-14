@@ -88,3 +88,7 @@ If migration fails:
 3. Check that `UuidResolver` can access `/minecraft/usercache.json`
 4. Old file backup is at `/data/player_playtime.json.backup`
 
+## Related Documentation
+
+- See [DATA-SCHEMA.md](./DATA-SCHEMA.md) for the current data schema documentation
+

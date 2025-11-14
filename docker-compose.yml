@@ -37,7 +37,7 @@ services:
       # Important: Set MAX_RAM and MIN_RAM to the same value for best performance
       # Container memory limit below should be ~1.5-2GB more than these values
       - MAX_RAM=4G
-      - MIN_RAM=4G
+      - MIN_RAM=7G
 
       # Java options
       - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8

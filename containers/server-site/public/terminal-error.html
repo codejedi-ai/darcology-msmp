@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Unavailable</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .error-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .error-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        /* Spinning cube animation */
+        .spinner-container {
+            perspective: 1000px;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 30px;
+            display: none;
+        }
+
+        .spinner-container.active {
+            display: block;
+        }
+
+        .spinner-cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateCube 3s infinite linear;
+        }
+
+        .cube-face {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .cube-face.front  { transform: rotateY(0deg) translateZ(50px); }
+        .cube-face.back   { transform: rotateY(180deg) translateZ(50px); }
+        .cube-face.right  { transform: rotateY(90deg) translateZ(50px); }
+        .cube-face.left   { transform: rotateY(-90deg) translateZ(50px); }
+        .cube-face.top    { transform: rotateX(90deg) translateZ(50px); }
+        .cube-face.bottom { transform: rotateX(-90deg) translateZ(50px); }
+
+        @keyframes rotateCube {
+            0% {
+                transform: rotateX(0deg) rotateY(0deg);
+            }
+            100% {
+                transform: rotateX(360deg) rotateY(360deg);
+            }
+        }
+
+        /* Spinning circle animation (alternative) */
+        .spinner-circle {
+            width: 80px;
+            height: 80px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+            display: none;
+        }
+
+        .spinner-circle.active {
+            display: block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Progress dots */
+        .loading-dots {
+            display: inline-block;
+        }
+
+        .loading-dots:after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: ''; }
+            40% { content: '.'; }
+            60% { content: '..'; }
+            80%, 100% { content: '...'; }
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .error-code {
+            color: #667eea;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .error-message {
+            color: #666;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .troubleshooting {
+            background: #f5f5f5;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 25px;
+            border-radius: 5px;
+        }
+
+        .troubleshooting h3 {
+            color: #333;
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .troubleshooting ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .troubleshooting li {
+            color: #555;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .troubleshooting li:last-child {
+            border-bottom: none;
+        }
+
+        .troubleshooting li:before {
+            content: "→ ";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .status-info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fff9e6;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <!-- Spinning cube loader -->
+        <div class="spinner-container active" id="spinner">
+            <div class="spinner-cube">
+                <div class="cube-face front">⛏️</div>
+                <div class="cube-face back">🎮</div>
+                <div class="cube-face right">🔨</div>
+                <div class="cube-face left">⚔️</div>
+                <div class="cube-face top">🛡️</div>
+                <div class="cube-face bottom">💎</div>
+            </div>
+        </div>
+
+        <!-- Alternative: spinning circle (uncomment to use) -->
+        <!-- <div class="spinner-circle active" id="spinner-circle"></div> -->
+
+        <div class="error-icon" id="error-icon" style="display: none;">🔄</div>
+        <h1 id="error-title">Connecting to Server<span class="loading-dots"></span></h1>
+        <div class="error-code" id="error-code">Checking server status</div>
+        <div class="error-message" id="error-message">
+            Please wait while we establish connection to the terminal...
+        </div>
+
+        <div class="troubleshooting" id="troubleshooting" style="display: none;">
+            <h3>Possible Causes:</h3>
+            <ul id="causes-list">
+                <li>Minecraft server is still initializing (can take 2-3 minutes)</li>
+                <li>Terminal service (ttyd) failed to start on port 7681</li>
+                <li>Network connectivity issue between containers</li>
+                <li>Minecraft server container is not running</li>
+            </ul>
+        </div>
+
+        <div class="action-buttons" id="action-buttons" style="display: none;">
+            <a href="/" class="btn btn-secondary">
+                🏠 Go to Dashboard
+            </a>
+        </div>
+
+        <div class="status-info" id="status-info">
+            💡 <strong>Connecting:</strong> Attempting to reach terminal service<span class="loading-dots"></span>
+        </div>
+    </div>
+
+    <script>
+        let attemptCount = 0;
+        let pingInterval;
+        let serverStatus = 'unknown';
+
+        // Continuously ping the terminal endpoint
+        async function pingTerminal() {
+            attemptCount++;
+            console.log(`Ping attempt ${attemptCount}: Checking terminal connection...`);
+
+            try {
+                // Try to reach the terminal directly
+                const terminalResponse = await fetch('/server-terminal', {
+                    method: 'HEAD',
+                    cache: 'no-cache'
+                });
+
+                if (terminalResponse.ok) {
+                    // Terminal is reachable! Redirect to it
+                    console.log('✓ Terminal is ready! Redirecting...');
+                    showConnectedState();
+                    setTimeout(() => {
+                        window.location.href = '/server-terminal';
+                    }, 1000);
+                    clearInterval(pingInterval);
+                    return;
+                }
+            } catch (error) {
+                console.log('✗ Terminal not ready yet...');
+            }
+
+            // Check if server is at least running
+            try {
+                const statsResponse = await fetch('/stats', {
+                    method: 'GET',
+                    cache: 'no-cache'
+                });
+
+                if (statsResponse.ok && serverStatus !== 'initializing') {
+                    serverStatus = 'initializing';
+                    showInitializingState();
+                }
+            } catch (error) {
+                if (serverStatus !== 'down') {
+                    serverStatus = 'down';
+                    showServerDownState();
+                }
+            }
+
+            updateStatusMessage();
+        }
+
+        function showConnectedState() {
+            document.getElementById('spinner').classList.remove('active');
+            document.getElementById('error-icon').style.display = 'block';
+            document.getElementById('error-icon').textContent = '✅';
+            document.getElementById('error-title').innerHTML = 'Terminal Connected!';
+            document.getElementById('error-code').textContent = 'Redirecting...';
+            document.getElementById('error-message').innerHTML = 'Successfully connected to server terminal.';
+            document.getElementById('status-info').innerHTML = `
+                ✓ <strong>Success!</strong> Opening terminal in 1 second...
+            `;
+        }
+
+        function showInitializingState() {
+            document.getElementById('error-title').innerHTML = 'Server Initializing<span class="loading-dots"></span>';
+            document.getElementById('error-code').textContent = 'Terminal service starting up';
+            document.getElementById('error-message').innerHTML = `
+                The Minecraft server is running. Waiting for terminal service to become available.
+                <br><strong>This usually takes 1-2 minutes on first startup.</strong>
+            `;
+        }
+
+        function showServerDownState() {
+            document.getElementById('spinner').classList.remove('active');
+            document.getElementById('error-icon').style.display = 'block';
+            document.getElementById('error-icon').textContent = '❌';
+            document.getElementById('error-title').textContent = 'Server Not Running';
+            document.getElementById('error-code').textContent = 'Cannot reach server';
+            document.getElementById('error-message').innerHTML = `
+                The Minecraft server does not appear to be running or reachable.
+            `;
+            document.getElementById('action-buttons').style.display = 'flex';
+            document.getElementById('status-info').innerHTML = `
+                🔧 <strong>Action needed:</strong> Start the server with: <code>docker compose up -d</code>
+            `;
+            // Stop pinging if server is completely down
+            clearInterval(pingInterval);
+        }
+
+        function updateStatusMessage() {
+            const elapsed = Math.floor(attemptCount * 2); // 2 seconds per attempt
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            const timeStr = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
+
+            if (serverStatus === 'initializing') {
+                document.getElementById('status-info').innerHTML = `
+                    ⏰ <strong>Waiting:</strong> ${timeStr} elapsed. Checking every 2 seconds<span class="loading-dots"></span>
+                `;
+            } else {
+                document.getElementById('status-info').innerHTML = `
+                    🔍 <strong>Searching:</strong> ${timeStr} elapsed. Trying to reach server<span class="loading-dots"></span>
+                `;
+            }
+        }
+
+        // Start pinging immediately and then every 2 seconds
+        pingTerminal();
+        pingInterval = setInterval(pingTerminal, 2000);
+    </script>
+</body>
+</html>

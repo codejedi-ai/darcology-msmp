@@ -22,6 +22,9 @@ services:
       # Mount libraries folder (persistent across restarts)
       - minecraft-libraries:/minecraft/libraries
 
+      # Mount separate data folder for event logger CSV files
+      - ./event-data:/event-data
+
     environment:
       # Server site address for internal communication
       - SERVER_SITE_HOST=server-site

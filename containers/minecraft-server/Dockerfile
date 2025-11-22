@@ -14,9 +14,9 @@ RUN wget -O /usr/local/bin/ttyd https://github.com/tsl0922/ttyd/releases/downloa
 
 WORKDIR /minecraft
 
-# Copy startup scripts from separate scripts folder (not in minecraft mount)
-COPY containers/scripts/start-server.sh /scripts/start-server.sh
-COPY containers/scripts/event_logger.py /scripts/event_logger.py
+# Copy startup scripts from minecraft-server/scripts folder (not in minecraft mount)
+COPY containers/minecraft-server/scripts/start-server.sh /scripts/start-server.sh
+COPY containers/minecraft-server/scripts/event_logger.py /scripts/event_logger.py
 RUN chmod +x /scripts/start-server.sh /scripts/event_logger.py
 
 # Expose ports

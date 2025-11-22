@@ -16,8 +16,8 @@ services:
       # ttyd terminal (port 7681) is proxied through nginx at /server-terminal
 
     volumes:
-      # Mount entire minecraft-server folder - everything runs from here
-      - ./containers/minecraft-server:/minecraft
+      # Mount minecraft folder from minecraft-server - this is the actual minecraft server data
+      - ./containers/minecraft-server/minecraft:/minecraft
 
       # Mount libraries folder (persistent across restarts)
       - minecraft-libraries:/minecraft/libraries
@@ -98,8 +98,8 @@ services:
       - "80:80"        # Static site on port 80
 
     volumes:
-      # Mount data folder for mods.zip download (from minecraft-server folder)
-      - ./containers/minecraft-server/data:/usr/share/nginx/html/data:ro
+      # Mount data folder for mods.zip download (from minecraft-server/minecraft folder)
+      - ./containers/minecraft-server/minecraft/data:/usr/share/nginx/html/data:ro
 
     depends_on:
       - minecraft-server

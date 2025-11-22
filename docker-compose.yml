@@ -17,7 +17,7 @@ services:
 
     volumes:
       # Mount minecraft folder from minecraft-server - this is the actual minecraft server data
-      - ./minecraft:/minecraft
+      - ./containers/minecraft-server/minecraft:/minecraft
 
       # Mount libraries folder (persistent across restarts)
       - minecraft-libraries:/minecraft/libraries
@@ -98,8 +98,8 @@ services:
       - "80:80"        # Static site on port 80
 
     volumes:
-      # Mount data folder for mods.zip download (from minecraft folder)
-      - ./minecraft/data:/usr/share/nginx/html/data:ro
+      # Mount data folder for mods.zip download (from minecraft-server/minecraft folder)
+      - ./containers/minecraft-server/minecraft/data:/usr/share/nginx/html/data:ro
 
     depends_on:
       - minecraft-server

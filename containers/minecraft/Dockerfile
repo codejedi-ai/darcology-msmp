@@ -1,5 +1,5 @@
-# Minecraft Server Dockerfile - Uses Java base image
-# Minecraft is already installed in the mounted volume, just need Java and tools
+# Minecraft Server Dockerfile - Runtime environment only
+# Minecraft folder is pre-mounted as volume, this just provides Java + tools + scripts
 
 FROM azul/zulu-openjdk:21
 
@@ -14,17 +14,7 @@ RUN wget -O /usr/local/bin/ttyd https://github.com/tsl0922/ttyd/releases/downloa
 
 WORKDIR /minecraft
 
-# Copy configuration files from containers/ (initialization files)
-COPY containers/eula.txt /minecraft/
-COPY containers/server.properties /minecraft/server.properties
-# Delete the old config folder
-RUN rm -rf /minecraft/config
-# Copy the config folder to replace the old config folder
-COPY containers/config /minecraft/config
-# Create data directory
-RUN mkdir -p /minecraft/data
-
-# Copy startup scripts
+# Copy startup scripts only (minecraft folder is mounted as volume)
 COPY containers/minecraft/start-server.sh /minecraft/start-server.sh
 COPY containers/minecraft/event_logger.py /minecraft/event_logger.py
 RUN chmod +x /minecraft/start-server.sh /minecraft/event_logger.py

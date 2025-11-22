@@ -122,8 +122,8 @@ USERCACHE_SYNC_PID=$!
 
 # Start Python event logger script in the background
 echo "Starting Python event logger..."
-if [ -f "/minecraft/event_logger.py" ]; then
-    python3 /minecraft/event_logger.py &
+if [ -f "/scripts/event_logger.py" ]; then
+    python3 /scripts/event_logger.py &
     EVENT_LOGGER_PID=$!
     echo "Event logger started (PID: $EVENT_LOGGER_PID)"
 else

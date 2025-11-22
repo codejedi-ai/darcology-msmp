@@ -114,7 +114,7 @@ environment:
 
 Server properties can be configured in two ways:
 
-1. **Edit `containers/minecraft/server.properties`** directly (requires rebuild)
+1. **Edit `containers/server.properties`** directly (requires rebuild)
 2. **Use environment variables** in `docker-compose.yml` (see commented options)
 
 Available environment variables include:
@@ -209,7 +209,7 @@ docker exec minecraft-server screen -S minecraft -X stuff "stop\n"
 
 1. Stop the server
 2. Add/remove mods in the `containers/minecraft/mods/` folder
-3. Update configs in the `containers/minecraft/config/` folder if needed
+3. Update configs in the `containers/config/` folder if needed
 4. Rebuild the container: `docker compose build`
 5. Start the server: `docker compose up -d`
 
@@ -232,7 +232,7 @@ docker exec minecraft-server screen -S minecraft -X stuff "stop\n"
 
 ### Port already in use
 - Change the host port in docker-compose.yml: `"25566:25565"`
-- Update `containers/minecraft/server.properties` to match (or use SERVER_PORT environment variable)
+- Update `containers/server.properties` to match (or use SERVER_PORT environment variable)
 
 ### Permission issues
 - Ensure folders have correct permissions: `chmod -R 755 world logs containers`

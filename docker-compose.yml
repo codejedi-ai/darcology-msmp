@@ -16,17 +16,11 @@ services:
       # ttyd terminal (port 7681) is proxied through nginx at /server-terminal
 
     volumes:
-      # Mount world folder from host
-      - ./world:/minecraft/world
-
-      # Mount logs folder from host
-      - ./logs:/minecraft/logs
+      # Mount entire minecraft folder - everything runs from here
+      - ./containers/minecraft:/minecraft
 
       # Mount libraries folder (persistent across restarts)
       - minecraft-libraries:/minecraft/libraries
-
-      # Mount data folder for shared data (mods.zip, usercache.json)
-      - ./data:/data
 
     environment:
       # Server site address for internal communication
@@ -101,8 +95,8 @@ services:
       - "80:80"        # Static site on port 80
 
     volumes:
-      # Mount data folder for mods.zip download
-      - ./data:/usr/share/nginx/html/data:ro
+      # Mount data folder for mods.zip download (from minecraft folder)
+      - ./containers/minecraft/data:/usr/share/nginx/html/data:ro
 
     depends_on:
       - minecraft-server

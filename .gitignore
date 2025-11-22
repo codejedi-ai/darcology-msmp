@@ -1,8 +1,5 @@
 # Minecraft server files
-world/
-logs/
-crash-reports/
-data/
+minecraft/
 !data/.gitkeep
 
 # Track mods.zip but ignore extracted mod JARs

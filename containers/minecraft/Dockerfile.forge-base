@@ -15,13 +15,13 @@ RUN wget -O /usr/local/bin/ttyd https://github.com/tsl0922/ttyd/releases/downloa
 WORKDIR /minecraft
 
 # Copy and install Forge (this happens once in the base image)
-COPY containers/minecraft/forge-1.20.1-47.4.0-installer.jar /minecraft/
+COPY containers/forge-1.20.1-47.4.0-installer.jar /minecraft/
 RUN java -jar forge-1.20.1-47.4.0-installer.jar --installServer && \
     rm forge-1.20.1-47.4.0-installer.jar && \
     echo "Forge 1.20.1-47.4.0 installation complete in base image"
 
 # Create necessary directories
-RUN mkdir -p /minecraft/mods /data && chmod 777 /data
+RUN mkdir -p /minecraft/mods /minecraft/data && chmod 777 /minecraft/data
 
 # Expose ports
 # 25565 - Minecraft server

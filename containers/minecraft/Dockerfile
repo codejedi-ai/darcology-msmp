@@ -4,17 +4,18 @@
 
 FROM minecraft-forge-base:1.20.1-47.4.0
 
-# Copy configuration files
-COPY containers/minecraft/eula.txt /minecraft/
-COPY containers/minecraft/server.properties /minecraft/server.properties
+# Copy configuration files from containers/ (initialization files)
+COPY containers/eula.txt /minecraft/
+COPY containers/server.properties /minecraft/server.properties
 # Delete the old config folder
 RUN rm -rf /minecraft/config
 # Copy the config folder to replace the old config folder
-COPY containers/minecraft/config /minecraft/config
+COPY containers/config /minecraft/config
 # Copy and extract mods
-COPY containers/minecraft/mods.zip /minecraft/mods.zip
-RUN unzip -q /minecraft/mods.zip -d /minecraft/mods && \
-    cp /minecraft/mods.zip /data/mods.zip && \
+COPY containers/mods.zip /minecraft/mods.zip
+RUN mkdir -p /minecraft/data && \
+    unzip -q /minecraft/mods.zip -d /minecraft/mods && \
+    cp /minecraft/mods.zip /minecraft/data/mods.zip && \
     rm /minecraft/mods.zip
 
 # Copy startup scripts

@@ -246,7 +246,7 @@ class EntityDeathWriter(CsvWriter):
 class MinecraftLogParser:
     """Main class that orchestrates log parsing and event writing"""
     
-    def __init__(self, log_file: str, data_dir: str = '/data'):
+    def __init__(self, log_file: str, data_dir: str = '/minecraft/data'):
         self.log_file = log_file
         self.data_dir = data_dir
         self.last_position = 0
@@ -353,7 +353,7 @@ class MinecraftLogParser:
 
 def main():
     """Main entry point"""
-    parser = MinecraftLogParser('/minecraft/logs/latest.log', '/data')
+    parser = MinecraftLogParser('/minecraft/logs/latest.log', '/minecraft/data')
     parser.run()
 
 

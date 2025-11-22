@@ -85,13 +85,16 @@ fi
 # Forge is already installed at build time, no need to install at runtime
 echo "Forge installation already completed during Docker build"
 
-# Zip the mods folder at startup (save to shared data volume)
+# Create data directory if it doesn't exist
+mkdir -p /minecraft/data
+
+# Zip the mods folder at startup (save to data folder)
 echo "Creating mods.zip archive..."
 if [ -d "/minecraft/mods" ] && [ "$(ls -A /minecraft/mods/*.jar 2>/dev/null)" ]; then
     cd /minecraft/mods
-    zip -q /data/mods.zip *.jar 2>/dev/null || true
-    if [ -f "/data/mods.zip" ]; then
-        echo "mods.zip created successfully in /data"
+    zip -q /minecraft/data/mods.zip *.jar 2>/dev/null || true
+    if [ -f "/minecraft/data/mods.zip" ]; then
+        echo "mods.zip created successfully in /minecraft/data"
     else
         echo "Warning: Failed to create mods.zip"
     fi
@@ -100,10 +103,10 @@ else
 fi
 cd /minecraft
 
-# Copy usercache.json to shared data volume for dashboard access (if it exists)
+# Copy usercache.json to data folder for dashboard access (if it exists)
 # Also sync it periodically in the background
 if [ -f "/minecraft/usercache.json" ]; then
-    cp /minecraft/usercache.json /data/usercache.json 2>/dev/null || true
+    cp /minecraft/usercache.json /minecraft/data/usercache.json 2>/dev/null || true
 fi
 
 # Sync usercache.json periodically (every 30 seconds) in the background
@@ -111,7 +114,7 @@ fi
     while true; do
         sleep 30
         if [ -f "/minecraft/usercache.json" ]; then
-            cp /minecraft/usercache.json /data/usercache.json 2>/dev/null || true
+            cp /minecraft/usercache.json /minecraft/data/usercache.json 2>/dev/null || true
         fi
     done
 ) &

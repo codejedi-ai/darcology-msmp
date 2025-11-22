@@ -6,7 +6,7 @@ This directory contains Kubernetes manifests for deploying the Minecraft server.
 
 1. **Build and push images to your registry**:
    ```bash
-   docker build -f containers/minecraft/Dockerfile -t your-registry/minecraft-server:latest .
+   docker build -f containers/minecraft-server/Dockerfile -t your-registry/minecraft-server:latest .
    docker build -f containers/server-site/Dockerfile -t your-registry/minecraft-server-site:latest .
    docker push your-registry/minecraft-server:latest
    docker push your-registry/minecraft-server-site:latest

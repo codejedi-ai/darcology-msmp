@@ -141,7 +141,7 @@ volumes:
 
 The `level-name` property in `server.properties` is already set to `"world"` and should not be changed, as it refers to the container's internal folder name (`/minecraft/world`), regardless of what host folder you map to it.
 
-Mods and configuration files are copied from the `containers/minecraft/` folder during the Docker build process. To update mods or configs, modify files in the `containers/minecraft/` folder and rebuild the container.
+The minecraft server runs from the pre-mounted `containers/minecraft-server/` folder. To update mods or configs, modify files in the `containers/minecraft-server/` folder.
 
 ## First Run
 
@@ -208,8 +208,8 @@ docker exec minecraft-server screen -S minecraft -X stuff "stop\n"
 ## Updating Mods
 
 1. Stop the server
-2. Add/remove mods in the `containers/minecraft/mods/` folder
-3. Update configs in the `containers/config/` folder if needed
+2. Add/remove mods in the `containers/minecraft-server/mods/` folder
+3. Update configs in the `containers/minecraft-server/config/` folder if needed
 4. Rebuild the container: `docker compose build`
 5. Start the server: `docker compose up -d`
 

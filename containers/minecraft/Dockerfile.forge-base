@@ -15,6 +15,7 @@ RUN wget -O /usr/local/bin/ttyd https://github.com/tsl0922/ttyd/releases/downloa
 WORKDIR /minecraft
 
 # Copy and install Forge (this happens once in the base image)
+# Forge installer is copied from parent folder by build.sh before building
 COPY containers/forge-1.20.1-47.4.0-installer.jar /minecraft/
 RUN java -jar forge-1.20.1-47.4.0-installer.jar --installServer && \
     rm forge-1.20.1-47.4.0-installer.jar && \

@@ -2,9 +2,10 @@
 minecraft/
 !data/.gitkeep
 
-# Track mods.zip but ignore extracted mod JARs
-containers/minecraft/mods/*.jar
-!containers/minecraft/mods.zip
+# Large files moved to parent folder - ignore them
+*.zip
+containers/*.zip
+containers/forge-*.jar
 
 # Ruby/Rails
 containers/server-site/vendor/

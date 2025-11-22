@@ -11,12 +11,8 @@ COPY containers/server.properties /minecraft/server.properties
 RUN rm -rf /minecraft/config
 # Copy the config folder to replace the old config folder
 COPY containers/config /minecraft/config
-# Copy and extract mods
-COPY containers/mods.zip /minecraft/mods.zip
-RUN mkdir -p /minecraft/data && \
-    unzip -q /minecraft/mods.zip -d /minecraft/mods && \
-    cp /minecraft/mods.zip /minecraft/data/mods.zip && \
-    rm /minecraft/mods.zip
+# Mods are already in the base image's /minecraft/mods directory
+RUN mkdir -p /minecraft/data
 
 # Copy startup scripts
 COPY containers/minecraft/start-server.sh /minecraft/start-server.sh

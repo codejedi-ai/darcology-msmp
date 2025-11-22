@@ -39,32 +39,6 @@ services:
       # Java options
       - JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
-      # Server Properties (Required)
-      # ONLINE_MODE: true for authentication, false for cracked servers
-      - ONLINE_MODE=true
-      # LEVEL_NAME is not needed - it's already set to "world" in server.properties
-      # and should always remain "world" (the container's internal folder name)
-
-      # Optional Server Properties (uncomment to override defaults)
-      # If not set, uses values from minecraft/server.properties
-      # - MOTD=A Minecraft Server
-      # - MAX_PLAYERS=20
-      # - DIFFICULTY=normal
-      # - GAMEMODE=survival
-      # - PVP=true
-      # - HARDCORE=false
-      # - WHITE_LIST=false
-      # - LEVEL_SEED=
-      # - VIEW_DISTANCE=10
-      # - SIMULATION_DISTANCE=10
-      # - SPAWN_PROTECTION=16
-      # - ALLOW_NETHER=true
-      # - ALLOW_FLIGHT=false
-      # - ENABLE_COMMAND_BLOCK=false
-      # - SPAWN_ANIMALS=true
-      # - SPAWN_MONSTERS=true
-      # - SPAWN_NPCS=true
-
     stdin_open: true
     tty: true
 

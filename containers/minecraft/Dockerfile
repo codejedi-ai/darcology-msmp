@@ -1,8 +1,18 @@
-# Minecraft Server Dockerfile - Builds on top of Forge base image
-# Build base image first: docker build -f containers/minecraft/Dockerfile.forge-base -t minecraft-forge-base:1.20.1-47.4.0 .
-# Then build this: docker build -f containers/minecraft/Dockerfile -t minecraft-server:latest .
+# Minecraft Server Dockerfile - Uses Java base image
+# Minecraft is already installed in the mounted volume, just need Java and tools
 
-FROM minecraft-forge-base:1.20.1-47.4.0
+FROM azul/zulu-openjdk:21
+
+# Install base system dependencies
+RUN apt-get update && \
+    apt-get install -y bash curl screen wget zip python3 python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install ttyd for web terminal
+RUN wget -O /usr/local/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.4/ttyd.x86_64 && \
+    chmod +x /usr/local/bin/ttyd
+
+WORKDIR /minecraft
 
 # Copy configuration files from containers/ (initialization files)
 COPY containers/eula.txt /minecraft/
@@ -11,15 +21,13 @@ COPY containers/server.properties /minecraft/server.properties
 RUN rm -rf /minecraft/config
 # Copy the config folder to replace the old config folder
 COPY containers/config /minecraft/config
-# Mods are already in the base image's /minecraft/mods directory
+# Create data directory
 RUN mkdir -p /minecraft/data
 
 # Copy startup scripts
 COPY containers/minecraft/start-server.sh /minecraft/start-server.sh
 COPY containers/minecraft/event_logger.py /minecraft/event_logger.py
 RUN chmod +x /minecraft/start-server.sh /minecraft/event_logger.py
-
-WORKDIR /minecraft
 
 # Expose ports
 # 25565 - Minecraft server

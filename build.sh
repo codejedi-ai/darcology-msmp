@@ -10,23 +10,6 @@ echo "Building and Starting Services"
 echo "=========================================="
 echo ""
 
-# Check if Forge base image exists
-if ! docker image inspect minecraft-forge-base:1.20.1-47.4.0 >/dev/null 2>&1; then
-    echo "Forge base image not found. Building base image (this is a one-time operation)..."
-    echo "This may take a few minutes..."
-    # Copy forge installer from parent folder if it exists
-    if [ -f "../forge-1.20.1-47.4.0-installer.jar" ] && [ ! -f "containers/forge-1.20.1-47.4.0-installer.jar" ]; then
-        echo "Copying forge installer from parent folder..."
-        cp ../forge-1.20.1-47.4.0-installer.jar containers/
-    fi
-    docker build -f containers/minecraft/Dockerfile.forge-base -t minecraft-forge-base:1.20.1-47.4.0 .
-    echo "✓ Forge base image built successfully!"
-    echo ""
-else
-    echo "✓ Forge base image already exists (skipping Forge installation)"
-    echo ""
-fi
-
 # Build and start using docker compose
 echo "Building server images and starting containers..."
 docker compose up -d --build

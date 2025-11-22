@@ -33,7 +33,4 @@ echo "  docker compose up -d --build server-site"
 echo ""
 echo "To rebuild only minecraft server (after mod/config changes):"
 echo "  docker compose up -d --build minecraft-server"
-echo ""
-echo "To rebuild Forge base image (only needed when upgrading Forge version):"
-echo "  docker build -f containers/minecraft/Dockerfile.forge-base -t minecraft-forge-base:1.20.1-47.4.0 ."
 

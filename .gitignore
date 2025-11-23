@@ -1,6 +1,7 @@
-# Minecraft server files
+# Minecraft server files - ignore everything in minecraft folder
 minecraft/
-!data/.gitkeep
+!minecraft/server.properties
+!minecraft/eula.txt
 
 # Large files moved to parent folder - ignore them
 *.zip

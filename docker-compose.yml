@@ -5,15 +5,7 @@ services:
       dockerfile: containers/minecraft-server/Dockerfile
     container_name: minecraft-server
     restart: unless-stopped
-
-    networks:
-      minecraft-network:
-        ipv4_address: 172.25.0.10
-
-    ports:
-      - "25565:25565"  # Minecraft server port
-      - "24454:24454"  # Voice chat mod port
-      # ttyd terminal (port 7681) is proxied through nginx at /server-terminal
+    network_mode: host
 
     volumes:
       # Mount minecraft folder from root - this is the actual minecraft server data

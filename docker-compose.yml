@@ -5,7 +5,20 @@ services:
       dockerfile: containers/minecraft-server/Dockerfile
     container_name: minecraft-server
     restart: unless-stopped
-    network_mode: host
+
+    networks:
+      minecraft-network:
+        ipv4_address: 172.25.0.10
+
+    ports:
+      # Minecraft server port - both TCP and UDP
+      - "25565:25565/tcp"  # Minecraft server TCP
+      - "25565:25565/udp"  # Minecraft server UDP (for query, some mods)
+      # Voice chat mod port - both TCP and UDP
+      - "24454:24454/tcp"  # Voice chat TCP
+      - "24454:24454/udp"  # Voice chat UDP
+      # ttyd web terminal port - TCP only
+      - "7681:7681/tcp"    # ttyd web terminal TCP
 
     volumes:
       # Mount minecraft folder from root - this is the actual minecraft server data

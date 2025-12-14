@@ -101,7 +101,8 @@ chmod +x /tmp/attach-minecraft.sh
 
 # Start ttyd with unlimited client connections
 # Multiple users can connect and all will see the same screen session
-ttyd --writable --port 7681 --max-clients 0 /tmp/attach-minecraft.sh &
+# -i 0.0.0.0 binds to all interfaces so it's accessible from other containers
+ttyd -i 0.0.0.0 --writable --port 7681 --max-clients 0 /tmp/attach-minecraft.sh &
 TTYD_PID=$!
 
 # Give services a moment to start
